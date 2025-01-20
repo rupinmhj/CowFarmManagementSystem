@@ -80,7 +80,7 @@ const AnimalRecords = () => {
   );
 
   return (
-    <div className="animalrecords" style={{ padding: '20px' }}>
+    <div id="animalRecords" className="animalrecords" style={{ padding: '20px' }}>
       {/* Form Section */}
       <div className="record-animal">
         <h2>Animal Records</h2>

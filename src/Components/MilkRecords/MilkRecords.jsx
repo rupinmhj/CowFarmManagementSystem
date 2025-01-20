@@ -36,7 +36,7 @@ const MilkRecords = () => {
   };
 
   return (
-    <div className="milk-records-container">
+    <div id="milkRecords" className="milk-records-container">
       <div className="milk-records-form">
         <h2>Milk Records</h2>
         <form onSubmit={handleSubmit}>

@@ -10,10 +10,10 @@ function MyNavbar() {
         <img className="mainlogo" src={logomain} alt="Farm Logo" /> 
       </div>
       <ul className='nav-items'>
-        <li><a href="#AnimalRecords">Animal Records</a></li>
-        <li><a href="#MilkRecords">Milk Records</a></li>
-        <li><a href="#HealthRecords">Health Records</a></li>
-        <li><a href="#FarmFinance">Farm Finance</a></li>
+        <li><a href="#animalRecords">Animal Records</a></li>
+        <li><a href="#milkRecords">Milk Records</a></li>
+        <li><a href="#healthRecords">Health Records</a></li>
+        <li><a href="#farmFinance">Farm Finance</a></li>
         <li><a href="#">Reports & Analytics</a></li>
       </ul>
     </div>

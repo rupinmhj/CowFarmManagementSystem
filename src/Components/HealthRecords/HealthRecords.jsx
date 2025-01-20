@@ -44,7 +44,7 @@ const HealthRecords = () => {
   };
 
   return (
-    <div className="health-records-container">
+    <div id="healthRecords" className="health-records-container">
       {/* Form Section */}
       <div className="health-records-form">
         <h2>Health Records</h2>
