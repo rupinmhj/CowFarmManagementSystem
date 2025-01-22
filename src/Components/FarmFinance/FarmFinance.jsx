@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './FarmFinance.css';
 
 const FarmFinance = () => {
   const [financeData, setFinanceData] = useState({
-    incomeSource: '',
+    incomeType: '',
     incomeAmount: '',
     incomeDate: '',
-    expenseCategory: '',
+    expenseType: '',
     expenseAmount: '',
     expenseDate: '',
   });
@@ -17,6 +18,32 @@ const FarmFinance = () => {
     netProfit: 0,
     cashBalance: 0,
   });
+
+  const [profitLoss, setProfitLoss] = useState({
+    profit: 0,
+    loss: 0,
+  });
+
+  // Fetch Finance Summary and Profit/Loss on Component Mount
+  useEffect(() => {
+    // Fetch Finance Summary
+    axios.get('http://127.0.0.1:8000/api/finance-summary/')
+      .then(response => {
+        setFinanceSummary(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching finance summary:', error);
+      });
+
+    // Fetch Profit/Loss
+    axios.get('http://127.0.0.1:8000/api/profit-loss/')
+      .then(response => {
+        setProfitLoss(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching profit/loss:', error);
+      });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,39 +56,61 @@ const FarmFinance = () => {
   const handleIncomeSubmit = (e) => {
     e.preventDefault();
     const income = parseFloat(financeData.incomeAmount || 0);
-    setFinanceSummary((prev) => ({
-      ...prev,
-      totalIncome: prev.totalIncome + income,
-      netProfit: prev.netProfit + income,
-      cashBalance: prev.cashBalance + income,
-    }));
+    axios.post('http://127.0.0.1:8000/api/incomes/', {
+      income_type: financeData.incomeType,
+      amount: income,
+      date: financeData.incomeDate,
+    })
+      .then(response => {
+        // Update the finance summary and net profit
+        setFinanceSummary((prev) => ({
+          ...prev,
+          totalIncome: prev.totalIncome + income,
+          netProfit: prev.netProfit + income,
+          cashBalance: prev.cashBalance + income,
+        }));
+        alert('Income Record Saved!');
+      })
+      .catch(error => {
+        console.error('Error saving income:', error);
+      });
 
     setFinanceData({
       ...financeData,
-      incomeSource: '',
+      incomeType: '',
       incomeAmount: '',
       incomeDate: '',
     });
-    alert('Income Record Saved!');
   };
 
   const handleExpenseSubmit = (e) => {
     e.preventDefault();
     const expense = parseFloat(financeData.expenseAmount || 0);
-    setFinanceSummary((prev) => ({
-      ...prev,
-      totalExpenses: prev.totalExpenses + expense,
-      netProfit: prev.netProfit - expense,
-      cashBalance: prev.cashBalance - expense,
-    }));
+    axios.post('http://127.0.0.1:8000/api/expenses/', {
+      expense_type: financeData.expenseType,
+      amount: expense,
+      date: financeData.expenseDate,
+    })
+      .then(response => {
+        // Update the finance summary and net profit
+        setFinanceSummary((prev) => ({
+          ...prev,
+          totalExpenses: prev.totalExpenses + expense,
+          netProfit: prev.netProfit - expense,
+          cashBalance: prev.cashBalance - expense,
+        }));
+        alert('Expense Record Saved!');
+      })
+      .catch(error => {
+        console.error('Error saving expense:', error);
+      });
 
     setFinanceData({
       ...financeData,
-      expenseCategory: '',
+      expenseType: '',
       expenseAmount: '',
       expenseDate: '',
     });
-    alert('Expense Record Saved!');
   };
 
   return (
@@ -73,15 +122,19 @@ const FarmFinance = () => {
         <form onSubmit={handleIncomeSubmit}>
           <h3>Income Details</h3>
           <label className="label">
-            Income Source:
-            <input
+            Income Type:
+            <select
               className="input-field"
-              type="text"
-              name="incomeSource"
-              value={financeData.incomeSource}
+              name="incomeType"
+              value={financeData.incomeType}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="MILK">Milk Sales</option>
+              <option value="CATTLE">Cattle Sales</option>
+              <option value="MANURE">Manure Sales</option>
+              <option value="OTHER">Other Income</option>
+            </select>
           </label>
           <label className="label">
             Amount:
@@ -109,18 +162,24 @@ const FarmFinance = () => {
         </form>
 
         {/* Expense Form */}
-        <form onSubmit={handleExpenseSubmit}>
+        <form className="expenses" onSubmit={handleExpenseSubmit}>
           <h3>Expense Details</h3>
           <label className="label">
-            Expense Category:
-            <input
+            Expense Type:
+            <select
               className="input-field"
-              type="text"
-              name="expenseCategory"
-              value={financeData.expenseCategory}
+              name="expenseType"
+              value={financeData.expenseType}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="FEED">Feed Purchase</option>
+              <option value="VET">Veterinary Services</option>
+              <option value="LABOR">Labor Costs</option>
+              <option value="EQUIPMENT">Equipment</option>
+              <option value="MAINTENANCE">Maintenance</option>
+              <option value="OTHER">Other Expenses</option>
+            </select>
           </label>
           <label className="label">
             Amount:
@@ -155,6 +214,9 @@ const FarmFinance = () => {
         <p>Total Expenses: Rs. {financeSummary.totalExpenses.toFixed(2)}</p>
         <p>Net Profit: Rs. {financeSummary.netProfit.toFixed(2)}</p>
         <p>Cash Balance: Rs. {financeSummary.cashBalance.toFixed(2)}</p>
+        <h3>Profit/Loss</h3>
+        <p>Profit: Rs. {profitLoss.profit.toFixed(2)}</p>
+        <p>Loss: Rs. {profitLoss.loss.toFixed(2)}</p>
       </div>
     </div>
   );

@@ -1,24 +1,31 @@
 .farm-finance-container {
-    margin-top: 10px;
-    font-family: sans-serif;
-    font-size: large;
-    display: flex;
-    flex-direction: row;
-    border: 2px solid #12452c;
-    border-radius: 5px;
-    justify-content: space-around;
-    align-items: flex-start;
-    height: 80vh;
-    width: 80vw;
-    margin-left: 200px;
+  margin-top: 10px;
+  font-family: sans-serif;
+  font-size: large;
+  display: flex;
+  /* gap:30px; */
+  flex-direction: row;
+  border: 2px solid rgb(18, 69, 44);
+  border-radius: 5px;
+  justify-content:space-around;
+  align-items:flex-start;
+  height: 1200px;
+  width: 80vw;
+  margin-left: 200px;
+  }
+  .expenses{
+    margin-top: 20px;
   }
   
   .finance-form {
     width: 45%;
   }
-  
-  .finance-form h2, .finance-form h3 {
-    text-align: center;
+  .finance-form h2{
+    text-align: left;
+  }
+ .finance-form h3 {
+    margin-top: 10px;
+    text-align: left;
     color: #444;
   }
   
