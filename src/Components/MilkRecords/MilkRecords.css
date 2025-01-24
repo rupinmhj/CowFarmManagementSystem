@@ -9,7 +9,7 @@
   border-radius: 5px;
   justify-content: space-around;
   align-items: flex-start;
-  height: 80vh;
+  height: 700px;
   width: 80vw;
   margin-left: 200px;
 }
@@ -46,7 +46,8 @@
   
   
   .table-container {
-    max-height: calc(7 * 40px); /* Adjust 40px to the row height */
+    /* Adjust 150px to the row height */
+    max-height: calc(7 * 150px);
     overflow-y: auto;
     border: 1px solid #ccc; /* Optional: Add a border to indicate the scrollable area */
     padding: 20px;

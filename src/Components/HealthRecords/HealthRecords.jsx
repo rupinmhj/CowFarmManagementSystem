@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import './HealthRecords.css';
-import api from '../../api'; // Assuming you have a common API service like in AnimalRecords
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./HealthRecords.css";
 
 const HealthRecords = () => {
   const initialFormState = {
-    cow: '',
-    health_condition: '',
-    diagnosed_illness: '',
-    vaccination_history: '',
-    veterinary_visits: '',
-    symptoms: '',
-    recovery_status: '',
-    treatment_cost: '',
+    cow: "",
+    health_condtion: "", // Match backend field name
+    diagnosed_illness: "",
+    vaccination_history: "",
+    veterinary_visits: "",
+    symptoms: "",
+    recovery_status: "",
+    treatment_cost: "",
   };
 
   const [healthData, setHealthData] = useState(initialFormState);
   const [healthRecords, setHealthRecords] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -26,33 +26,41 @@ const HealthRecords = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setHealthData((prevData) => ({
-      ...prevData,
+    setHealthData({
+      ...healthData,
       [name]: value,
-    }));
-  };
-
-  const validateForm = () => {
-    if (!healthData.cow || !healthData.health_condition) {
-      setError('Please fill in all required fields.');
-      return false;
-    }
-    return true;
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
     setLoading(true);
-    setError('');
     try {
-      await api.post('health-records/', healthData);
-      alert('Health Record Saved Successfully!');
-      setHealthData(initialFormState);
-      fetchHealthRecords();
+      const url = editingId
+        ? `http://127.0.0.1:8000/api/health-records/${editingId}/`
+        : "http://127.0.0.1:8000/api/health-records/";
+      const method = editingId ? "PUT" : "POST";
+
+      const response = await axios({
+        url,
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: healthData,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert(editingId ? "Health Record Updated!" : "Health Record Saved!");
+        setHealthData(initialFormState);
+        setEditingId(null);
+        fetchHealthRecords();
+      } else {
+        alert("Failed to save health record.");
+      }
     } catch (error) {
-      setError('Failed to save record. Please try again.');
+      console.error("Error:", error);
+      setError("An error occurred while saving the health record.");
     } finally {
       setLoading(false);
     }
@@ -61,31 +69,56 @@ const HealthRecords = () => {
   const fetchHealthRecords = async () => {
     setLoading(true);
     try {
-      const response = await api.get('health-records/');
-      setHealthRecords(response.data);
+      const response = await axios.get("http://127.0.0.1:8000/api/health-records/");
+      const records = response.data.map((record) => ({
+        ...record,
+        cow: record.cow.name || record.cow, // Adjust cow field display
+      }));
+      setHealthRecords(records);
     } catch (error) {
-      setError('Failed to fetch health records.');
+      console.error("Error fetching health records:", error);
+      setError("An error occurred while fetching the health records.");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredRecords = healthRecords.filter((record) =>
-    record.cow?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleEdit = (record) => {
+    setHealthData(record);
+    setEditingId(record.id);
+  };
+
+  const handleDelete = async (id) => {
+    setLoading(true);
+    try {
+      const response = await axios.delete(`http://127.0.0.1:8000/api/health-records/${id}/`);
+      if (response.status === 204) {
+        alert("Health record deleted successfully!");
+        fetchHealthRecords();
+      } else {
+        alert("Failed to delete health record.");
+      }
+    } catch (error) {
+      console.error("Error deleting health record:", error);
+      setError("An error occurred while deleting the health record.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="health-records-container">
-      <div className="health-records-form">
+    <div id="healthRecords" className="healthrecords">
+      <div className="record-health">
         <h2>Health Records</h2>
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
 
-        <form className="RecordHealth" onSubmit={handleSubmit}>
-          <div className="form-fields">
-            <label>
-              Cow ID: * <br />
+        <form onSubmit={handleSubmit}>
+          <div className="health-records">
+            <label className="label">
+              Cow ID: *
               <input
+                className="area"
                 type="text"
                 name="cow"
                 value={healthData.cow}
@@ -94,11 +127,12 @@ const HealthRecords = () => {
               />
             </label>
 
-            <label>
-              Health Condition: * <br />
+            <label className="label">
+              Health Condition: *
               <select
-                name="health_condition"
-                value={healthData.health_condition}
+                className="area"
+                name="health_condtion"
+                value={healthData.health_condtion}
                 onChange={handleChange}
                 required
               >
@@ -109,48 +143,54 @@ const HealthRecords = () => {
               </select>
             </label>
 
-            <label>
-              Diagnosed Illness: <br />
+            <label className="label">
+              Diagnosed Illness:
               <textarea
+                className="area"
                 name="diagnosed_illness"
                 value={healthData.diagnosed_illness}
                 onChange={handleChange}
-              />
+              ></textarea>
             </label>
 
-            <label>
-              Vaccination History: <br />
+            <label className="label">
+              Vaccination History:
               <textarea
+                className="area"
                 name="vaccination_history"
                 value={healthData.vaccination_history}
                 onChange={handleChange}
-              />
+              ></textarea>
             </label>
 
-            <label>
-              Veterinary Visits: <br />
+            <label className="label">
+              Veterinary Visits:
               <textarea
+                className="area"
                 name="veterinary_visits"
                 value={healthData.veterinary_visits}
                 onChange={handleChange}
-              />
+              ></textarea>
             </label>
 
-            <label>
-              Symptoms: <br />
+            <label className="label">
+              Symptoms:
               <textarea
+                className="area"
                 name="symptoms"
                 value={healthData.symptoms}
                 onChange={handleChange}
-              />
+              ></textarea>
             </label>
 
-            <label>
-              Recovery Status: <br />
+            <label className="label">
+              Recovery Status: *
               <select
+                className="area"
                 name="recovery_status"
                 value={healthData.recovery_status}
                 onChange={handleChange}
+                required
               >
                 <option value="">Select</option>
                 <option value="improving">Improving</option>
@@ -159,66 +199,69 @@ const HealthRecords = () => {
               </select>
             </label>
 
-            <label>
-              Treatment Cost (in Rs): <br />
+            <label className="label">
+              Treatment Cost:
               <input
+                className="area"
                 type="number"
                 name="treatment_cost"
                 value={healthData.treatment_cost}
                 onChange={handleChange}
-                min="0"
               />
             </label>
 
-            <button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Record'}
-            </button>
+            <div className="button-group">
+              <button type="submit" disabled={loading}>
+                {loading ? "Processing..." : editingId ? "Update Record" : "Save Record"}
+              </button>
+            </div>
           </div>
         </form>
       </div>
 
-      <div className="show-health-records">
-        <h2>Health Details</h2>
-        <input
-          type="text"
-          placeholder="Search health records..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <table>
-          <thead>
-            <tr>
-              <th>Cow ID</th>
-              <th>Health Condition</th>
-              <th>Diagnosed Illness</th>
-              <th>Vaccination History</th>
-              <th>Veterinary Visits</th>
-              <th>Symptoms</th>
-              <th>Recovery Status</th>
-              <th>Treatment Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRecords.length > 0 ? (
-              filteredRecords.map((record) => (
-                <tr key={record.id}>
-                  <td>{record.cow}</td>
-                  <td>{record.health_condition}</td>
-                  <td>{record.diagnosed_illness || '-'}</td>
-                  <td>{record.vaccination_history || '-'}</td>
-                  <td>{record.veterinary_visits || '-'}</td>
-                  <td>{record.symptoms || '-'}</td>
-                  <td>{record.recovery_status || '-'}</td>
-                  <td>{record.treatment_cost || '-'}</td>
-                </tr>
-              ))
-            ) : (
+      <div className="record-health">
+        <h2>Health Records Details</h2>
+        <div className="health-table-container">
+          <table id="healthTable">
+            <thead>
               <tr>
-                <td colSpan="8">No health records available.</td>
+                <th>Cow</th>
+                <th>Health Condition</th>
+                <th>Diagnosed Illness</th>
+                <th>Vaccination History</th>
+                <th>Veterinary Visits</th>
+                <th>Symptoms</th>
+                <th>Recovery Status</th>
+                <th>Treatment Cost</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {healthRecords.length > 0 ? (
+                healthRecords.map((record) => (
+                  <tr key={record.id}>
+                    <td>{record.cow}</td>
+                    <td>{record.health_condtion}</td>
+                    <td>{record.diagnosed_illness}</td>
+                    <td>{record.vaccination_history}</td>
+                    <td>{record.veterinary_visits}</td>
+                    <td>{record.symptoms}</td>
+                    <td>{record.recovery_status}</td>
+                    <td>{record.treatment_cost}</td>
+                    <td>
+                      <button className="editButton" onClick={() => handleEdit(record)}>Edit</button>
+                      <button className="deleteButton" onClick={() => handleDelete(record.id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10">No health records available.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

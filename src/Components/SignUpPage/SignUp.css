@@ -1,18 +1,63 @@
 body{
-    margin: auto;
+    margin: 70px;
+
+}
+.signupbody{
+    margin-left: 300px;
+    display: flex;
+    flex-direction: row;
+    
+    
+    
+    /* gap:-500px; */
+}
+.bodysignupcontainer{
+    display:flex;
+    flex-direction: row;
+    /* border:2px solid #0a2d0d; */
+    gap:0px;
+    height: 750px;
+    margin-left: 450px;
+    margin-top: -80px;
+}
+.logocontainer{
+    /* border:1px solid black ; */
+    background-color: #0a2d0d;
+    width: 450px;
+   
+}
+.heading{
+    color:rgb(230 234 221);
+    font-size: 40px;
+    font-weight: bolder;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 20px;
+}
+.firstheading{
+    margin-left: 70px;
+}
+.mainlog{
+    margin-left: 115px;
+    margin-top: 50px;
+    height: 200px;
+    width: 200px;
+    border-radius: 10px;
+  
+    object-fit: cover; /* Crops the image */
 }
 .signUp-container{
+    border:none;
     display: flex;
     flex-direction: column;
-    margin-left:600px;
-    margin-top: 10px;
+    margin-left:0px;
+    margin-top: 0px;
     background: #fff;
     padding: 20px;
     gap: 20px;
     /* max-width: 90%; */
     width: 500px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); */
+    /* border-radius: 10px; */
 }
 
 .header {
@@ -24,7 +69,7 @@ body{
 }
 
 .text {
-    color: #4CAF50;
+    color: #0a2d0d;
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
@@ -33,7 +78,7 @@ body{
 .underline {
     width: 120px;
     height: 4px;
-    background: #4CAF50;
+    background: #0a2d0d;
     border-radius: 9px;
 }
 
@@ -54,6 +99,8 @@ body{
     height: 50px;
     border-radius: 5px;
     padding: 0 10px;
+    /* user-select: none;  */
+
 }
 
 .input input {
@@ -98,12 +145,18 @@ body{
     justify-content: center;
     width: 100%;
 }
-
+.logindivider{
+    display: flex;
+}
+.signupdivider{
+    display: flex;
+    flex-direction: column;
+}
 .submit {
     width: 120px;
     height: 40px;
     border-radius: 5px;
-    background: #104612;
+    background: #0a2d0d;
     color: white;
     cursor: pointer;
     font-weight: 700;
@@ -113,9 +166,16 @@ body{
     transition: background 0.3s;
 }
 
-.submit:hover {
+.submit-container .submit-button:hover {
     background: #0a2d0d;
 }
+
+.submit-container .submit-button {
+    margin-top: 0px;
+    background-color: rgb(70, 70, 120);
+    color: white;
+   
+  }
 
 .gray {
     background: white;

@@ -2,17 +2,24 @@ import React, { useState, useEffect } from 'react';
 import './MilkRecords.css';
 
 const MilkRecords = () => {
-  const [milkData, setMilkData] = useState({
+  const initialFormState = {
     milking_date: '',
     cow: '',
     morning_milk_quantity: '',
     afternoon_milk_quantity: '',
     evening_milk_quantity: '',
-  });
+  };
 
-  const [milkRecords, setMilkRecords] = useState([]); // State to store fetched milk records
+  const [milkData, setMilkData] = useState(initialFormState);
+  const [milkRecords, setMilkRecords] = useState([]);
+  const [editingId, setEditingId] = useState(null); // Track the record being edited
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Handle input changes
+  useEffect(() => {
+    fetchMilkRecords();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMilkData({
@@ -21,61 +28,88 @@ const MilkRecords = () => {
     });
   };
 
-  // Submit the form to save the milk record
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/milk-records/', {
-        method: 'POST',
+      const url = editingId
+        ? `http://localhost:8000/api/milk-records/${editingId}/`
+        : 'http://localhost:8000/api/milk-records/';
+      const method = editingId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(milkData),
       });
+
       if (response.ok) {
-        alert('Milk Record Saved!');
-        setMilkData({
-          milking_date: '',
-          cow: '',
-          morning_milk_quantity: '',
-          afternoon_milk_quantity: '',
-          evening_milk_quantity: '',
-        });
-        fetchMilkRecords(); // Fetch records after successful POST
+        alert(editingId ? 'Milk Record Updated!' : 'Milk Record Saved!');
+        setMilkData(initialFormState);
+        setEditingId(null);
+        fetchMilkRecords();
       } else {
         alert('Failed to save milk record.');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred while saving the milk record.');
+      setError('An error occurred while saving the milk record.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch milk records from the API
   const fetchMilkRecords = async () => {
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:8000/api/milk-records/');
       if (response.ok) {
         const data = await response.json();
-        setMilkRecords(data); // Update the state with the fetched data
+        setMilkRecords(data);
       } else {
-        alert('Failed to fetch milk records.');
+        setError('Failed to fetch milk records.');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred while fetching the milk records.');
+      setError('An error occurred while fetching the milk records.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch milk records when the component mounts
-  useEffect(() => {
-    fetchMilkRecords();
-  }, []);
+  const handleEdit = (record) => {
+    setMilkData(record);
+    setEditingId(record.id);
+  };
+
+  const handleDelete = async (id) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8000/api/milk-records/${id}/`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        alert('Milk record deleted successfully!');
+        fetchMilkRecords();
+      } else {
+        alert('Failed to delete milk record.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred while deleting the milk record.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div id="milkRecords" className="milkrecords">
       <div className="record-milk">
         <h2>Milk Records</h2>
+        {error && <div className="error-message">{error}</div>}
+        {loading && <div className="loading-message">Processing...</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="milk-records">
@@ -137,8 +171,8 @@ const MilkRecords = () => {
             </label>
 
             <div className="button-group">
-              <button type="submit">
-                Save Record
+              <button type="submit" disabled={loading}>
+                {loading ? 'Processing...' : editingId ? 'Update Record' : 'Save Record'}
               </button>
             </div>
           </div>
@@ -156,22 +190,27 @@ const MilkRecords = () => {
                 <th>Morning Milk (L)</th>
                 <th>Afternoon Milk (L)</th>
                 <th>Evening Milk (L)</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {milkRecords.length > 0 ? (
-                milkRecords.map((record, index) => (
-                  <tr key={index}>
+                milkRecords.map((record) => (
+                  <tr key={record.id}>
                     <td>{record.milking_date}</td>
                     <td>{record.cow}</td>
                     <td>{record.morning_milk_quantity}</td>
                     <td>{record.afternoon_milk_quantity}</td>
                     <td>{record.evening_milk_quantity}</td>
+                    <td>
+                      <button className="editButton" onClick={() => handleEdit(record)}>Edit</button>
+                      <button className="deleteButton" onClick={() => handleDelete(record.id)}>Delete</button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">No milk records available.</td>
+                  <td colSpan="6">No milk records available.</td>
                 </tr>
               )}
             </tbody>

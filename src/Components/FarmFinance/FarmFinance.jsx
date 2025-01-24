@@ -3,6 +3,7 @@ import axios from 'axios';
 import './FarmFinance.css';
 
 const FarmFinance = () => {
+  // State for form data
   const [financeData, setFinanceData] = useState({
     incomeType: '',
     incomeAmount: '',
@@ -12,6 +13,7 @@ const FarmFinance = () => {
     expenseDate: '',
   });
 
+  // State for summary data
   const [financeSummary, setFinanceSummary] = useState({
     totalIncome: 0,
     totalExpenses: 0,
@@ -19,99 +21,138 @@ const FarmFinance = () => {
     cashBalance: 0,
   });
 
+  // State for profit/loss data
   const [profitLoss, setProfitLoss] = useState({
-    profit: 0,
-    loss: 0,
+    incomeBreakdown: [],
+    expenseBreakdown: [],
+    totalIncome: 0,
+    totalExpenses: 0,
+    netProfit: 0,
   });
 
-  // Fetch Finance Summary and Profit/Loss on Component Mount
-  useEffect(() => {
-    // Fetch Finance Summary
-    axios.get('http://127.0.0.1:8000/api/finance-summary/')
-      .then(response => {
-        setFinanceSummary(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching finance summary:', error);
-      });
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    // Fetch Profit/Loss
-    axios.get('http://127.0.0.1:8000/api/profit-loss/')
-      .then(response => {
-        setProfitLoss(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching profit/loss:', error);
-      });
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [summaryRes, profitLossRes] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/finance-summary/'),
+          axios.get('http://127.0.0.1:8000/api/profit-loss/')
+        ]);
+        
+        console.log('Summary Data:', summaryRes.data);
+        console.log('Profit/Loss Data:', profitLossRes.data);
+        
+        setFinanceSummary(summaryRes.data);
+        setProfitLoss(profitLossRes.data);
+        setError(null);
+      } catch (err) {
+        console.error('Fetch Error:', err);
+        setError('Failed to load financial data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFinanceData({
-      ...financeData,
+    setFinanceData(prevData => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
   };
 
-  const handleIncomeSubmit = (e) => {
+  // Handle income submission
+  const handleIncomeSubmit = async (e) => {
     e.preventDefault();
-    const income = parseFloat(financeData.incomeAmount || 0);
-    axios.post('http://127.0.0.1:8000/api/incomes/', {
-      income_type: financeData.incomeType,
-      amount: income,
-      date: financeData.incomeDate,
-    })
-      .then(response => {
-        // Update the finance summary and net profit
-        setFinanceSummary((prev) => ({
-          ...prev,
-          totalIncome: prev.totalIncome + income,
-          netProfit: prev.netProfit + income,
-          cashBalance: prev.cashBalance + income,
-        }));
-        alert('Income Record Saved!');
-      })
-      .catch(error => {
-        console.error('Error saving income:', error);
-      });
+    try {
+      const incomeData = {
+        income_type: financeData.incomeType,
+        amount: parseFloat(financeData.incomeAmount),
+        date: financeData.incomeDate || new Date().toISOString().split('T')[0]
+      };
 
-    setFinanceData({
-      ...financeData,
-      incomeType: '',
-      incomeAmount: '',
-      incomeDate: '',
-    });
+      console.log('Submitting income:', incomeData);
+
+      await axios.post('http://127.0.0.1:8000/api/incomes/', incomeData);
+      
+      // Refresh financial data
+      const [summaryRes, profitLossRes] = await Promise.all([
+        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
+        axios.get('http://127.0.0.1:8000/api/profit-loss/')
+      ]);
+      
+      setFinanceSummary(summaryRes.data);
+      setProfitLoss(profitLossRes.data);
+
+      // Reset form
+      setFinanceData(prev => ({
+        ...prev,
+        incomeType: '',
+        incomeAmount: '',
+        incomeDate: ''
+      }));
+
+      alert('Income record saved successfully!');
+    } catch (error) {
+      console.error('Income submission error:', error);
+      alert('Error saving income record. Please try again.');
+    }
   };
 
-  const handleExpenseSubmit = (e) => {
+  // Handle expense submission
+  const handleExpenseSubmit = async (e) => {
     e.preventDefault();
-    const expense = parseFloat(financeData.expenseAmount || 0);
-    axios.post('http://127.0.0.1:8000/api/expenses/', {
-      expense_type: financeData.expenseType,
-      amount: expense,
-      date: financeData.expenseDate,
-    })
-      .then(response => {
-        // Update the finance summary and net profit
-        setFinanceSummary((prev) => ({
-          ...prev,
-          totalExpenses: prev.totalExpenses + expense,
-          netProfit: prev.netProfit - expense,
-          cashBalance: prev.cashBalance - expense,
-        }));
-        alert('Expense Record Saved!');
-      })
-      .catch(error => {
-        console.error('Error saving expense:', error);
-      });
+    try {
+      const expenseData = {
+        expense_type: financeData.expenseType,
+        amount: parseFloat(financeData.expenseAmount),
+        date: financeData.expenseDate || new Date().toISOString().split('T')[0]
+      };
 
-    setFinanceData({
-      ...financeData,
-      expenseType: '',
-      expenseAmount: '',
-      expenseDate: '',
-    });
+      console.log('Submitting expense:', expenseData);
+
+      await axios.post('http://127.0.0.1:8000/api/expenses/', expenseData);
+      
+      // Refresh financial data
+      const [summaryRes, profitLossRes] = await Promise.all([
+        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
+        axios.get('http://127.0.0.1:8000/api/profit-loss/')
+      ]);
+      
+      setFinanceSummary(summaryRes.data);
+      setProfitLoss(profitLossRes.data);
+
+      // Reset form
+      setFinanceData(prev => ({
+        ...prev,
+        expenseType: '',
+        expenseAmount: '',
+        expenseDate: ''
+      }));
+
+      alert('Expense record saved successfully!');
+    } catch (error) {
+      console.error('Expense submission error:', error);
+      alert('Error saving expense record. Please try again.');
+    }
   };
+
+  if (isLoading) {
+    return <div className="loading">Loading financial data...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
     <div id="farmFinance" className="farm-finance-container">
@@ -130,23 +171,28 @@ const FarmFinance = () => {
               onChange={handleChange}
               required
             >
+              <option value="">Select Income Type</option>
               <option value="MILK">Milk Sales</option>
               <option value="CATTLE">Cattle Sales</option>
               <option value="MANURE">Manure Sales</option>
               <option value="OTHER">Other Income</option>
             </select>
           </label>
+
           <label className="label">
             Amount:
             <input
               className="input-field"
               type="number"
+              step="0.01"
+              min="0"
               name="incomeAmount"
               value={financeData.incomeAmount}
               onChange={handleChange}
               required
             />
           </label>
+
           <label className="label">
             Sale Date:
             <input
@@ -158,6 +204,7 @@ const FarmFinance = () => {
               required
             />
           </label>
+
           <button type="submit" className="submit-button">Save Income</button>
         </form>
 
@@ -173,6 +220,7 @@ const FarmFinance = () => {
               onChange={handleChange}
               required
             >
+              <option value="">Select Expense Type</option>
               <option value="FEED">Feed Purchase</option>
               <option value="VET">Veterinary Services</option>
               <option value="LABOR">Labor Costs</option>
@@ -181,17 +229,21 @@ const FarmFinance = () => {
               <option value="OTHER">Other Expenses</option>
             </select>
           </label>
+
           <label className="label">
             Amount:
             <input
               className="input-field"
               type="number"
+              step="0.01"
+              min="0"
               name="expenseAmount"
               value={financeData.expenseAmount}
               onChange={handleChange}
               required
             />
           </label>
+
           <label className="label">
             Expense Date:
             <input
@@ -203,6 +255,7 @@ const FarmFinance = () => {
               required
             />
           </label>
+
           <button type="submit" className="submit-button">Save Expense</button>
         </form>
       </div>
@@ -210,13 +263,29 @@ const FarmFinance = () => {
       {/* Finance Summary */}
       <div className="finance-summary">
         <h2>Finance Summary</h2>
-        <p>Total Income: Rs. {financeSummary.totalIncome.toFixed(2)}</p>
-        <p>Total Expenses: Rs. {financeSummary.totalExpenses.toFixed(2)}</p>
-        <p>Net Profit: Rs. {financeSummary.netProfit.toFixed(2)}</p>
-        <p>Cash Balance: Rs. {financeSummary.cashBalance.toFixed(2)}</p>
-        <h3>Profit/Loss</h3>
-        <p>Profit: Rs. {profitLoss.profit.toFixed(2)}</p>
-        <p>Loss: Rs. {profitLoss.loss.toFixed(2)}</p>
+        <div className="summary-details">
+          <p>Total Income: Rs. {financeSummary.totalIncome?.toFixed(2) || '0.00'}</p>
+          <p>Total Expenses: Rs. {financeSummary.totalExpenses?.toFixed(2) || '0.00'}</p>
+          <p>Net Profit: Rs. {financeSummary.netProfit?.toFixed(2) || '0.00'}</p>
+          <p>Cash Balance: Rs. {financeSummary.cashBalance?.toFixed(2) || '0.00'}</p>
+        </div>
+
+        {/* Profit/Loss Breakdown */}
+        <div className="profit-loss-breakdown">
+          <h3>Income Breakdown</h3>
+          {profitLoss.incomeBreakdown?.map((item, index) => (
+            <p key={index}>
+              {item.income_type}: Rs. {item.total?.toFixed(2)}
+            </p>
+          ))}
+
+          <h3>Expense Breakdown</h3>
+          {profitLoss.expenseBreakdown?.map((item, index) => (
+            <p key={index}>
+              {item.expense_type}: Rs. {item.total?.toFixed(2)}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
   );

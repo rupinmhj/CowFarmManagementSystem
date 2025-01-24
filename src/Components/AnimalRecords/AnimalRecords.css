@@ -8,7 +8,7 @@
   border-radius: 5px;
   justify-content:space-around;
   align-items:flex-start;
-  height: 170vh;
+  height: 1300px;
   width: 80vw;
   margin-left: 200px;
   /* font-size: 15px; */
@@ -34,6 +34,7 @@ gap:15px;
   display: flex;
   flex-direction: column;
 }
+
 button{
   margin-top: 80px;
 }
@@ -57,18 +58,24 @@ input,textarea,select,button{
 button{
   padding:5px 5px;
 }
-
+.showanimalrecords{
+  width: 800px;
+}
 
 .table-container {
-  max-height: calc(7 * 40px); /* Adjust 40px to the row height */
-  overflow-y: auto;
+  /* max-height: calc(7 * 200px); Adjust 40px to the row height */
+  /* overflow-y: auto; */
   border: 1px solid #ccc; /* Optional: Add a border to indicate the scrollable area */
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
 }
-
+.tr{
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+}
 .table-container h2 {
   text-align: center;
   color: #333;
@@ -112,6 +119,68 @@ tr:hover {
   background-color: #f1f1f1;
   cursor: pointer;
 }
+.editButton{
+  background-color: #11505d;
+}
+.deleteButton {
+  background-color: rgb(241, 62, 42);
+}
+
+/* Pagination Container */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  list-style-type: none;
+  padding: 0;
+}
+
+/* Pagination Item */
+.pagination li {
+  background-color: #555;
+  margin: 0 5px;
+
+}
+
+.pagination li a {
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Hover and Active States */
+.pagination li a:hover,
+.pagination li a.active {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Disabled State */
+.pagination li a.disabled {
+  color: #ccc;
+  background-color: #f9f9f9;
+  border-color: #ddd;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Adjust for Mobile View */
+@media (max-width: 600px) {
+  .pagination li a {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
 
 @media (max-width: 600px) {
   table {
