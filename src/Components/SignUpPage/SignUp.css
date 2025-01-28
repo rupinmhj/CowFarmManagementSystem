@@ -11,7 +11,7 @@ body{
     
     /* gap:-500px; */
 }
-.bodysignupcontainer{
+.bodysigupcontainer{
     display:flex;
     flex-direction: row;
     /* border:2px solid #0a2d0d; */
@@ -42,6 +42,8 @@ body{
     height: 200px;
     width: 200px;
     border-radius: 10px;
+    background: transparent;
+    mix-blend-mode:difference;
   
     object-fit: cover; /* Crops the image */
 }

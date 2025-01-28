@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useCallback} from 'react';
 import axios from 'axios';
 import './FarmFinance.css';
 
 const FarmFinance = () => {
   // State for form data
   const [financeData, setFinanceData] = useState({
-    incomeType: '',
-    incomeAmount: '',
-    incomeDate: '',
-    expenseType: '',
-    expenseAmount: '',
-    expenseDate: '',
+    income_type: '',
+    expense_type: '',
+    amount: '',
+    date: '',
   });
 
   // State for summary data
@@ -21,50 +19,59 @@ const FarmFinance = () => {
     cashBalance: 0,
   });
 
-  // State for profit/loss data
-  const [profitLoss, setProfitLoss] = useState({
-    incomeBreakdown: [],
-    expenseBreakdown: [],
-    totalIncome: 0,
-    totalExpenses: 0,
-    netProfit: 0,
-  });
+  // State for income and expense breakdown
+  const [incomeBreakdown, setIncomeBreakdown] = useState([]);
+  const [expenseBreakdown, setExpenseBreakdown] = useState([]);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch data on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [summaryRes, profitLossRes] = await Promise.all([
-          axios.get('http://127.0.0.1:8000/api/finance-summary/'),
-          axios.get('http://127.0.0.1:8000/api/profit-loss/')
-        ]);
-        
-        console.log('Summary Data:', summaryRes.data);
-        console.log('Profit/Loss Data:', profitLossRes.data);
-        
-        setFinanceSummary(summaryRes.data);
-        setProfitLoss(profitLossRes.data);
-        setError(null);
-      } catch (err) {
-        console.error('Fetch Error:', err);
-        setError('Failed to load financial data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [summaryRes, incomesRes, expensesRes] = await Promise.all([
+        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
+        axios.get('http://127.0.0.1:8000/api/incomes/'),
+        axios.get('http://127.0.0.1:8000/api/expenses/'),
+      ]);
 
+      setFinanceSummary(summaryRes.data);
+      setIncomeBreakdown(incomesRes.data);
+      setExpenseBreakdown(expensesRes.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Failed to load financial data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setFinanceSummary, setIncomeBreakdown, setExpenseBreakdown, setError]);
+
+   // Helper function to group and sum data by type
+        const groupByType = (data, typeKey) => {
+          const grouped = data.reduce((acc, item) => {
+            const type = item[typeKey];
+            const amount = parseFloat(item.amount);
+            if (!acc[type]) {
+              acc[type] = 0;
+            }
+            acc[type] += amount;
+            return acc;
+          }, {});
+          return Object.entries(grouped).map(([type, total]) => ({ type, total }));
+        };
+
+
+  // Fetch financial data
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFinanceData(prevData => ({
+    setFinanceData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -75,36 +82,18 @@ const FarmFinance = () => {
     e.preventDefault();
     try {
       const incomeData = {
-        income_type: financeData.incomeType,
-        amount: parseFloat(financeData.incomeAmount),
-        date: financeData.incomeDate || new Date().toISOString().split('T')[0]
+        income_type: financeData.income_type,
+        amount: parseFloat(financeData.amount),
+        date: financeData.date || new Date().toISOString().split('T')[0],
       };
 
-      console.log('Submitting income:', incomeData);
-
       await axios.post('http://127.0.0.1:8000/api/incomes/', incomeData);
-      
-      // Refresh financial data
-      const [summaryRes, profitLossRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
-        axios.get('http://127.0.0.1:8000/api/profit-loss/')
-      ]);
-      
-      setFinanceSummary(summaryRes.data);
-      setProfitLoss(profitLossRes.data);
-
-      // Reset form
-      setFinanceData(prev => ({
-        ...prev,
-        incomeType: '',
-        incomeAmount: '',
-        incomeDate: ''
-      }));
-
       alert('Income record saved successfully!');
+      fetchData();// Reload to fetch updated data
+      setFinanceData({ income_type: '', amount: '', date: '' }); // Clear form fields
     } catch (error) {
-      console.error('Income submission error:', error);
-      alert('Error saving income record. Please try again.');
+      console.error('Error submitting income:', error);
+      alert('Failed to save income record. Please try again.');
     }
   };
 
@@ -113,36 +102,19 @@ const FarmFinance = () => {
     e.preventDefault();
     try {
       const expenseData = {
-        expense_type: financeData.expenseType,
-        amount: parseFloat(financeData.expenseAmount),
-        date: financeData.expenseDate || new Date().toISOString().split('T')[0]
+        expense_type: financeData.expense_type,
+        amount: parseFloat(financeData.amount),
+        date: financeData.date || new Date().toISOString().split('T')[0],
       };
 
-      console.log('Submitting expense:', expenseData);
-
       await axios.post('http://127.0.0.1:8000/api/expenses/', expenseData);
-      
-      // Refresh financial data
-      const [summaryRes, profitLossRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
-        axios.get('http://127.0.0.1:8000/api/profit-loss/')
-      ]);
-      
-      setFinanceSummary(summaryRes.data);
-      setProfitLoss(profitLossRes.data);
-
-      // Reset form
-      setFinanceData(prev => ({
-        ...prev,
-        expenseType: '',
-        expenseAmount: '',
-        expenseDate: ''
-      }));
-
       alert('Expense record saved successfully!');
+      fetchData(); 
+      setFinanceData({ income_type: '', amount: '', date: '' }); // Clear form fields
+      
     } catch (error) {
-      console.error('Expense submission error:', error);
-      alert('Error saving expense record. Please try again.');
+      console.error('Error submitting expense:', error);
+      alert('Failed to save expense record. Please try again.');
     }
   };
 
@@ -154,6 +126,18 @@ const FarmFinance = () => {
     return <div className="error-message">{error}</div>;
   }
 
+    // Add new helper function for aggregating data
+    const aggregateFinancialData = (data, typeKey) => {
+      return data.reduce((acc, item) => {
+        const type = item[typeKey];
+        const amount = parseFloat(item.amount);
+        if (!acc[type]) {
+          acc[type] = 0;
+        }
+        acc[type] += amount;
+        return acc;
+      }, {});
+    };
   return (
     <div id="farmFinance" className="farm-finance-container">
       <div className="finance-form">
@@ -166,8 +150,8 @@ const FarmFinance = () => {
             Income Type:
             <select
               className="input-field"
-              name="incomeType"
-              value={financeData.incomeType}
+              name="income_type"
+              value={financeData.income_type}
               onChange={handleChange}
               required
             >
@@ -186,20 +170,20 @@ const FarmFinance = () => {
               type="number"
               step="0.01"
               min="0"
-              name="incomeAmount"
-              value={financeData.incomeAmount}
+              name="amount"
+              value={financeData.amount}
               onChange={handleChange}
               required
             />
           </label>
 
           <label className="label">
-            Sale Date:
+            Date:
             <input
               className="input-field"
               type="date"
-              name="incomeDate"
-              value={financeData.incomeDate}
+              name="date"
+              value={financeData.date}
               onChange={handleChange}
               required
             />
@@ -209,14 +193,14 @@ const FarmFinance = () => {
         </form>
 
         {/* Expense Form */}
-        <form className="expenses" onSubmit={handleExpenseSubmit}>
+        <form onSubmit={handleExpenseSubmit}>
           <h3>Expense Details</h3>
           <label className="label">
             Expense Type:
             <select
               className="input-field"
-              name="expenseType"
-              value={financeData.expenseType}
+              name="expense_type"
+              value={financeData.expense_type}
               onChange={handleChange}
               required
             >
@@ -226,7 +210,7 @@ const FarmFinance = () => {
               <option value="LABOR">Labor Costs</option>
               <option value="EQUIPMENT">Equipment</option>
               <option value="MAINTENANCE">Maintenance</option>
-              <option value="OTHER">Other Expenses</option>
+              <option value="OTHERS">Other Expenses</option>
             </select>
           </label>
 
@@ -237,20 +221,20 @@ const FarmFinance = () => {
               type="number"
               step="0.01"
               min="0"
-              name="expenseAmount"
-              value={financeData.expenseAmount}
+              name="amount"
+              value={financeData.amount}
               onChange={handleChange}
               required
             />
           </label>
 
           <label className="label">
-            Expense Date:
+            Date:
             <input
               className="input-field"
               type="date"
-              name="expenseDate"
-              value={financeData.expenseDate}
+              name="date"
+              value={financeData.date}
               onChange={handleChange}
               required
             />
@@ -260,31 +244,52 @@ const FarmFinance = () => {
         </form>
       </div>
 
-      {/* Finance Summary */}
-      <div className="finance-summary">
+     {/* Finance Summary with Aggregated Data */}
+     <div className="finance-summary">
         <h2>Finance Summary</h2>
-        <div className="summary-details">
-          <p>Total Income: Rs. {financeSummary.totalIncome?.toFixed(2) || '0.00'}</p>
-          <p>Total Expenses: Rs. {financeSummary.totalExpenses?.toFixed(2) || '0.00'}</p>
-          <p>Net Profit: Rs. {financeSummary.netProfit?.toFixed(2) || '0.00'}</p>
-          <p>Cash Balance: Rs. {financeSummary.cashBalance?.toFixed(2) || '0.00'}</p>
+        <div className="summary-card">
+          <div className="summary-details">
+            <p className="total-item">Total Income: Rs. {financeSummary.totalIncome.toFixed(2)}</p>
+            <p className="total-item">Total Expenses: Rs. {financeSummary.totalExpenses.toFixed(2)}</p>
+            <p className={`total-item ${financeSummary.netProfit >= 0 ? 'profit' : 'loss'}`}>
+              Net Profit: Rs. {financeSummary.netProfit.toFixed(2)}
+            </p>
+            <p className="total-item">Cash Balance: Rs. {financeSummary.cashBalance.toFixed(2)}</p>
+          </div>
         </div>
 
-        {/* Profit/Loss Breakdown */}
-        <div className="profit-loss-breakdown">
-          <h3>Income Breakdown</h3>
-          {profitLoss.incomeBreakdown?.map((item, index) => (
-            <p key={index}>
-              {item.income_type}: Rs. {item.total?.toFixed(2)}
-            </p>
-          ))}
+        <div className="breakdown-container">
+          {/* Aggregated Income Breakdown */}
+          <div className="breakdown-section">
+            <h3>Income Breakdown</h3>
+            <div className="breakdown-items">
+              {Object.entries(aggregateFinancialData(incomeBreakdown, 'income_type')).map(([type, amount]) => (
+                <div key={type} className="breakdown-item">
+                  <span className="type">{type}</span>
+                  <span className="amount">Rs. {amount.toFixed(2)}</span>
+                  <span className="percentage">
+                    ({((amount / financeSummary.totalIncome) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <h3>Expense Breakdown</h3>
-          {profitLoss.expenseBreakdown?.map((item, index) => (
-            <p key={index}>
-              {item.expense_type}: Rs. {item.total?.toFixed(2)}
-            </p>
-          ))}
+       {/* Aggregated Expense Breakdown */}
+       <div className="breakdown-section">
+            <h3>Expense Breakdown</h3>
+            <div className="breakdown-items">
+              {Object.entries(aggregateFinancialData(expenseBreakdown, 'expense_type')).map(([type, amount]) => (
+                <div key={type} className="breakdown-item">
+                  <span className="type">{type}</span>
+                  <span className="amount">Rs. {amount.toFixed(2)}</span>
+                  <span className="percentage">
+                    ({((amount / financeSummary.totalExpenses) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -8,10 +8,11 @@
   border-radius: 5px;
   justify-content: space-around;
   align-items: flex-start;
-  height: 800px;
+  height: 850px;
   width: 80vw;
   margin-left: 200px;
 }
+
 
 .record-health {
   margin-top: 15px;
@@ -19,16 +20,19 @@
   flex-direction: column;
 }
 
+
 button {
   margin-top: 80px;
 }
 
+
 input, textarea, select, button {
-  background-color: rgb(87, 164, 109);
+  background-color: #246244;
   min-width: 150px;
   max-width: 200px;
   height: 40px;
 }
+
 
 .label {
   font-size: 20px;
@@ -37,25 +41,31 @@ input, textarea, select, button {
   flex-direction: row;
 }
 
+
 button {
   padding: 5px 5px;
 }
 
-.health-table-container {
+
+.table-container {
   max-height: calc(7 * 150px);
   overflow-y: auto;
   border: 1px solid #ccc;
   padding: 20px;
-  width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
 }
 
+.health-detail{
+  width:1200px;
+}
 .table-container h2 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
 }
+
 
 #searchInput {
   width: 100%;
@@ -66,11 +76,13 @@ button {
   font-size: 16px;
 }
 
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
+
 
 th, td {
   font-size: 18px;
@@ -79,25 +91,30 @@ th, td {
   text-align: left;
 }
 
+
 th {
   background-color: #f4f4f4;
   color: #555;
   font-weight: bold;
 }
 
+
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
+
 
 tr:hover {
   background-color: #f1f1f1;
   cursor: pointer;
 }
 
+
 @media (max-width: 600px) {
   table {
     font-size: 14px;
   }
+
 
   #searchInput {
     font-size: 14px;

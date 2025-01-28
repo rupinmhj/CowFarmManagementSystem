@@ -3,6 +3,9 @@ import './NavBar.css';
 import logomain from '../../assets/mainlogo.png'; 
 
 function MyNavbar() {
+  const handleLogout=()=>{
+    window.location.href = '/signup';
+  }
   return (
     <>
     <div className="nav-list"> 
@@ -16,6 +19,9 @@ function MyNavbar() {
         <li><a href="#farmFinance">Farm Finance</a></li>
         <li><a href="#">Reports & Analytics</a></li>
       </ul>
+      <div className="logout-container">
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
+      </div>
     </div>
     </>
     

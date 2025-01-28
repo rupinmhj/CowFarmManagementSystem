@@ -16,9 +16,10 @@
   .expenses{
     margin-top: 20px;
   }
-  
+ 
   .finance-form {
-    width: 45%;
+    width: 35%;
+    margin-left: 30px;
   }
   .finance-form h2{
     text-align: left;
@@ -28,7 +29,7 @@
     text-align: left;
     color: #444;
   }
-  
+ 
   .label {
     display: flex;
     flex-direction: column;
@@ -36,7 +37,7 @@
     font-size: 16px;
     color: #333;
   }
-  
+ 
   .input-field {
     padding: 10px;
     font-size: 14px;
@@ -44,7 +45,7 @@
     border-radius: 5px;
     width: 100%;
   }
-  
+ 
   .submit-button {
     display: block;
     width: 100%;
@@ -58,11 +59,11 @@
     cursor: pointer;
     margin-top: 10px;
   }
-  
+ 
   .submit-button:hover {
     background-color: #459256;
   }
-  
+ 
   .finance-summary {
     width: 45%;
     padding: 20px;
@@ -70,24 +71,104 @@
     border-radius: 5px;
     border: 1px solid #ccc;
   }
-  
+ 
   .finance-summary h2 {
     text-align: center;
     color: #444;
   }
-  
+ 
   .finance-summary p {
     font-size: 18px;
     margin-bottom: 10px;
   }
+  .finance-summary {
+    width: 1000px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
   
+  .summary-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-details {
+    display: grid;
+    gap: 15px;
+  }
+  
+  .total-item {
+    font-size: 1.1em;
+    font-weight: 500;
+  }
+  
+  .profit {
+    color: #28a745;
+  }
+  
+  .loss {
+    color: #dc3545;
+  }
+  
+  .breakdown-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .breakdown-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+  }
+  
+  .breakdown-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    /* align-items: center; */
+  }
+  
+  .breakdown-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 10px;
+    /* gap:30px; */
+  }
+  .breakdown-item > span {
+    margin-right: 20px; /* add some margin between spans */
+    align-self: center;
+  }
+  .breakdown-item .type {
+    font-weight: 500;
+  }
+  
+  .breakdown-item .amount {
+    color: #495057;
+  }
+  
+  .breakdown-item .percentage {
+    color: #6c757d;
+    font-size: 0.9em;
+  }
+ 
   @media (max-width: 600px) {
     .input-field {
       font-size: 13px;
     }
-  
+ 
     .submit-button {
       font-size: 14px;
     }
   }
-  
+ 

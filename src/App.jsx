@@ -7,13 +7,31 @@ import MilkRecords from "./Components/MilkRecords/MilkRecords";
 import HealthRecords from "./Components/HealthRecords/HealthRecords";
 import FarmFinance from "./Components/FarmFinance/FarmFinance";
 
-const Dashboard = () => (
+const DashboardAdmin = () => (
   <div>
     <NavBar />
     <AnimalRecords />
     <MilkRecords />
     <HealthRecords />
     <FarmFinance />
+  </div>
+);
+const DashboardManager = () => (
+  <div>
+    <NavBar />
+    {/* <AnimalRecords /> */}
+    <MilkRecords />
+    {/* <HealthRecords /> */}
+    <FarmFinance />
+  </div>
+);
+const DashboardVet = () => (
+  <div>
+    <NavBar />
+    {/* <AnimalRecords /> */}
+    {/* <MilkRecords /> */}
+    <HealthRecords />
+    {/* <FarmFinance /> */}
   </div>
 );
 
@@ -23,7 +41,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/signup" />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+        <Route path="/dashboard-manager" element={<DashboardManager />} />
+        <Route path="/dashboard-vet" element={<DashboardVet/>} />
       </Routes>
     </Router>
   );

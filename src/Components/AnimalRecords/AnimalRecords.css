@@ -8,7 +8,7 @@
   border-radius: 5px;
   justify-content:space-around;
   align-items:flex-start;
-  height: 1300px;
+  height: 1000px;
   width: 80vw;
   margin-left: 200px;
   /* font-size: 15px; */
@@ -63,7 +63,8 @@ button{
 }
 
 .table-container {
-  /* max-height: calc(7 * 200px); Adjust 40px to the row height */
+  max-height: calc(7 * 200px); 
+  /* Adjust 40px to the row height */
   /* overflow-y: auto; */
   border: 1px solid #ccc; /* Optional: Add a border to indicate the scrollable area */
   padding: 20px;

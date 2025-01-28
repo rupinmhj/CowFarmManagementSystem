@@ -4,7 +4,8 @@ import api from '../../api';
 
 const AnimalRecords = () => {
   const initialFormState = {
-    name: '',
+    id: null, // Added to differentiate between creating and updating records
+    cow_name: '',
     breed: '',
     dob: '',
     date_of_arrival: '',
@@ -22,22 +23,62 @@ const AnimalRecords = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 7;
+  const recordsPerPage = 5;
 
   useEffect(() => {
     fetchAnimalRecords();
   }, []);
 
+  const validateForm = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const requiredFields = ['cow_name', 'breed', 'dob', 'date_of_arrival', 'weight', 'lactation_cycle'];
+    for (let field of requiredFields) {
+      if (!animalData[field]) {
+        setError(`Please fill in the required field: ${field}`);
+        return false;
+      }
+    }
+
+    if (animalData.dob > today) {
+      setError('Date of birth cannot be in the future');
+      return false;
+    }
+
+    if (animalData.date_of_arrival < animalData.dob) {
+      setError('Date of arrival cannot be before date of birth');
+      return false;
+    }
+
+    if (animalData.date_of_arrival > today) {
+      setError('Date of arrival cannot be in the future');
+      return false;
+    }
+
+    if (animalData.pregnancy_status) {
+      if (!animalData.due_date) {
+        setError('Due date is required for pregnant animals');
+        return false;
+      }
+      if (animalData.due_date <= today) {
+        setError('Due date must be in the future for pregnant animals');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
 
-    if (name === 'dob') {
-      const selectedDate = new Date(value);
-      const today = new Date();
-      if (selectedDate > today) {
-        alert('Date of Birth cannot be in the future.');
-        return;
-      }
+    if (name === 'pregnancy_status') {
+      const isPregnant = value === 'true';
+      setAnimalData((prevData) => ({
+        ...prevData,
+        pregnancy_status: isPregnant,
+        due_date: isPregnant ? prevData.due_date : '',
+      }));
+      return;
     }
 
     setAnimalData((prevData) => ({
@@ -46,33 +87,38 @@ const AnimalRecords = () => {
     }));
   };
 
-  const validateForm = () => {
-    const requiredFields = ['name', 'breed', 'dob', 'date_of_arrival', 'weight', 'lactation_cycle'];
-    for (let field of requiredFields) {
-      if (!animalData[field]) {
-        setError(`Please fill in the required field: ${field}`);
-        return false;
-      }
-    }
-    if (animalData.pregnancy_status && !animalData.due_date) {
-      setError('Due date is required for pregnant animals');
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (!validateForm()) return;
+
+    const formattedData = {
+      ...animalData,
+      ...(animalData.pregnancy_status && animalData.due_date
+        ? { due_date: new Date(animalData.due_date).toISOString().split('T')[0] }
+        : { due_date: null }),
+    };
 
     setLoading(true);
     try {
-      await api.post('animal/', animalData);
-      alert('Animal Record Saved Successfully!');
+      if (animalData.id) {
+        // Update existing record
+        await api.put(`animal/${animalData.id}/`, formattedData);
+        alert('Animal Record Updated Successfully!');
+      } else {
+        // Create new record
+        await api.post('animal/', formattedData);
+        alert('Animal Record Saved Successfully!');
+      }
       setAnimalData(initialFormState);
       fetchAnimalRecords();
     } catch (error) {
-      setError('Failed to save record. Please try again.');
+      const errorMessage = error.response?.data
+        ? Object.values(error.response.data).flat().join(', ')
+        : 'Failed to save record. Please try again.';
+      setError(errorMessage);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -90,8 +136,12 @@ const AnimalRecords = () => {
     }
   };
 
-  const handleEdit = (animal) => {
-    setAnimalData(animal);
+  const handleEdit = (id) => {
+    const animal = animalRecords.find((record) => record.id === id);
+    setAnimalData({
+      ...animal,
+      pregnancy_status: animal.pregnancy_status ? true : false,
+    });
   };
 
   const handleDelete = async (id) => {
@@ -108,12 +158,14 @@ const AnimalRecords = () => {
   };
 
   const filteredRecords = animalRecords.filter((record) =>
-    record.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    record.cow_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentRecords = filteredRecords.length > 0
+    ? filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
+    : [];
 
   const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
@@ -123,59 +175,122 @@ const AnimalRecords = () => {
     }
   };
 
+  
   return (
     <div id="animalRecords" className="animalrecords">
       <div className="record-animal">
         <h2>Animal Records</h2>
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
-
+       
         <form onSubmit={handleSubmit}>
           <div className="animal-records">
-            {/* Form Fields */}
-            <label className="label">Name: *
-            <input className="area" type="text" name="name" value={animalData.name} onChange={handleChange} required /></label>
+            <label className="label">
+              CowName: *
+              <input
+                className="area"
+                type="text"
+                name="cow_name"
+                value={animalData.cow_name}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-            <label className="label">Breed: *
-            <input className="area" type="text" name="breed" value={animalData.breed} onChange={handleChange} required /></label>
+            <label className="label">
+              Breed: *
+              <input
+                className="area"
+                type="text"
+                name="breed"
+                value={animalData.breed}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-            <label className="label">Date of Birth: *
-            <input className="area" type="date" name="dob" value={animalData.dob} onChange={handleChange} required /></label>
+            <label className="label">
+              Date of Birth: *
+              <input
+                className="area"
+                type="date"
+                name="dob"
+                value={animalData.dob}
+                onChange={handleChange}
+                max={new Date().toISOString().split('T')[0]}
+                required
+              />
+            </label>
 
-            <label className="label">Date of Arrival: *
-            <input className="area" type="date" name="date_of_arrival" value={animalData.date_of_arrival} onChange={handleChange} required /></label>
+            <label className="label">
+              Date of Arrival: *
+              <input
+                className="area"
+                type="date"
+                name="date_of_arrival"
+                value={animalData.date_of_arrival}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-            <label className="label">Weight (kg): *
-            <input className="area" type="number" name="weight" value={animalData.weight} onChange={handleChange} required /></label>
+            <label className="label">
+              Weight (kg): *
+              <input
+                className="area"
+                type="number"
+                step="0.01"
+                min="0"
+                name="weight"
+                value={animalData.weight}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-            <label className="label">Pregnancy Status:
-            <select className="area" name="pregnancy_status" value={animalData.pregnancy_status ? 'true' : 'false'} onChange={handleChange}>
-              <option value="false">Not Pregnant</option>
-              <option value="true">Pregnant</option>
-            </select></label>
+            <label className="label">
+              Pregnancy Status:
+              <select
+                className="area"
+                name="pregnancy_status"
+                value={animalData.pregnancy_status ? 'true' : 'false'}
+                onChange={handleChange}
+              >
+                <option value="false">Not Pregnant</option>
+                <option value="true">Pregnant</option>
+              </select>
+            </label>
 
             {animalData.pregnancy_status && (
-      <>
-        <label className="label">Due Date:
-        <input
-        className="area"
-          type="date"
-          name="due_date"
-          value={animalData.due_date}
-          onChange={handleChange}
-          required
-        />
-        </label>
-      </>
-    )}
+              <label className="label">
+                Due Date:
+                <input
+                  className="area"
+                  type="date"
+                  name="due_date"
+                  value={animalData.due_date}
+                  onChange={handleChange}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </label>
+            )}
 
-            <label className="label">Lactation Cycle: *
-            <select className="area" name="lactation_cycle" value={animalData.lactation_cycle} onChange={handleChange} required>
-              <option value="">Select Cycle</option>
-              <option value="dry">Dry</option>
-              <option value="lactating">Lactating</option>
-              <option value="fresh">Fresh</option>
-            </select></label>
+            <label className="label">
+              Lactation Cycle: *
+              <select
+                className="area"
+                name="lactation_cycle"
+                value={animalData.lactation_cycle}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Cycle</option>
+                <option value="dry">Dry</option>
+                <option value="lactating">Lactating</option>
+                <option value="fresh">Fresh</option>
+              </select>
+            </label>
 
             <label className="label">
               Health History:
@@ -202,55 +317,53 @@ const AnimalRecords = () => {
                 {loading ? 'Saving...' : 'Save Record'}
               </button>
             </div>
-          {/* </div> */}
-      
-
-            {/* <button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save Record'}</button> */}
           </div>
         </form>
       </div>
 
       <div className="showanimalrecords">
         <h2>Animal Details</h2>
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Search animals..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <table id="animalTable" className='table'>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Breed</th>
-              <th>Weight (kg)</th>
-              <th>Lactation Cycle</th>
-              <th>Pregnancy Status</th>
-              <th>Due Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentRecords.map((animal) => (
-              <tr key={animal.id}>
-                <td>{animal.id}</td>
-                <td>{animal.name}</td>
-                <td>{animal.breed}</td>
-                <td>{animal.weight}</td>
-                <td>{animal.lactation_cycle}</td>
-                <td>{animal.pregnancy_status ? 'Pregnant' : 'Not Pregnant'}</td>
-                <td>{animal.due_date}</td>
-                <td>
-                  <button className="editButton" onClick={() => handleEdit(animal)}>Edit</button>
-                  <button className="deleteButton" onClick={() => handleDelete(animal.id)}>Delete</button>
-                </td>
+        <div className="table-container">
+          <input
+            type="text"
+            id="searchInput"
+            className="search-input"
+            placeholder="Search animals..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <table id="animalTable" className='table'>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>CowName</th>
+                <th>Breed</th>
+                <th>Weight (kg)</th>
+                <th>Lactation Cycle</th>
+                <th>Pregnancy Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="pagination">
+            </thead>
+            <tbody>
+              {currentRecords.map((animal) => (
+                <tr key={animal.id}>
+                  <td>{animal.id}</td>
+                  <td>{animal.cow_name}</td>
+                  <td>{animal.breed}</td>
+                  <td>{animal.weight}</td>
+                  <td>{animal.lactation_cycle}</td>
+                  <td>{animal.pregnancy_status ? 'Pregnant' : 'Not Pregnant'}</td>
+                  {/* <td>{animal.daily_milk_yield || '-'}</td> */}
+                  <td>
+                    <button className="editButton" onClick={() => handleEdit(animal.id)}>Edit</button>
+                    <button className="deleteButton" onClick={() => handleDelete(animal.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="pagination">
           <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
             Previous
           </button>
@@ -262,6 +375,9 @@ const AnimalRecords = () => {
           <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
             Next
           </button>
+        </div>
+
+          
         </div>
       </div>
     </div>

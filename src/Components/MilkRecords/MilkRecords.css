@@ -9,16 +9,25 @@
   border-radius: 5px;
   justify-content: space-around;
   align-items: flex-start;
-  height: 700px;
+  height: 1000px;
   width: 80vw;
   margin-left: 200px;
 }
 
- 
+ .milk-second{
+  display: flex;
+  flex-direction: column;
+  /* border:2px solid black; */
+  height: 800px;
+  gap:3px;
+ }
   .record-milk{
     margin-top: 15px;
     display: flex;
     flex-direction: column;
+  }
+  .record-milk-summary{
+    margin-top: 15px;
   }
   button{
     margin-top: 80px;
@@ -77,13 +86,17 @@
     margin-top: 20px;
   }
   
-  
-  th, td {
-    font-size: 18px;
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
+  thead{
+    align-items: center;
+    justify-content: center;
+
   }
+ .table th, 
+.table td {
+  text-align: center; /* Center-aligns the text */
+  vertical-align: middle; /* Aligns the text vertically in the middle */
+  padding: 10px; /* Adds some space inside cells for better spacing */
+}
   
   th {
     background-color: #f4f4f4;
