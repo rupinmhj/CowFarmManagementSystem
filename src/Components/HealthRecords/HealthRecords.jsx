@@ -54,6 +54,7 @@ const HealthRecords = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     setLoading(true);
     try {
       const url = editingId
@@ -168,17 +169,7 @@ const HealthRecords = () => {
                 ))}
               </select>
             </label>
-            {/* <label className="label">
-              Cow ID: *
-              <input
-                className="area"
-                type="number"
-                name="cow"
-                value={healthData.cow}
-                onChange={handleChange}
-                required
-              />
-            </label> */}
+          
 
             <label className="label">
               Health Condition: *
@@ -297,7 +288,7 @@ const HealthRecords = () => {
 </div>
 
           
-          <table id="healthTable">
+          <table id="healthTable" className="table">
             <thead>
               <tr>
                 {/* <th>ID</th> */}

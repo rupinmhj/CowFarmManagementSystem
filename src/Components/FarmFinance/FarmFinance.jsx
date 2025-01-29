@@ -10,7 +10,52 @@ const FarmFinance = () => {
     amount: '',
     date: '',
   });
+  
+  const fetchEnhancedSummary = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/enhancedfinance-summary/"
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.current_month) {  // Check if data has the expected structure
+          setEnhancedSummary(data);
+          setEnhancedsummaryError(null);
+        } else {
+          setEnhancedsummaryError("Invalid data format received");
+          console.error("Invalid data format:", data);
+        }
+      } else {
+        setEnhancedsummaryError("Failed to fetch monthly summary.");
+      }
+    } catch (error) {
+      console.error("Error fetching monthly summary:", error);
+      setEnhancedsummaryError("An error occurred while fetching monthly summary.");
+    }
+  };
 
+  const [enhancedSummary, setEnhancedSummary] = useState({
+    current_month: {
+      month: '',
+      income: {
+        breakdown: [],
+        total: 0,
+        daily_average: 0
+      },
+      expenses: {
+        breakdown: [],
+        total: 0,
+        daily_average: 0
+      },
+      net_profit_loss: 0,
+      status: ''
+    },
+    summary_metrics: {
+      profit_margin: 0,
+      expense_ratio: 0
+    }
+  });//added
+  const [enhancedSummaryError, setEnhancedsummaryError] = useState(""); //added
   // State for summary data
   const [financeSummary, setFinanceSummary] = useState({
     totalIncome: 0,
@@ -66,7 +111,8 @@ const FarmFinance = () => {
   // Fetch financial data
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchEnhancedSummary();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -80,6 +126,11 @@ const FarmFinance = () => {
   // Handle income submission
   const handleIncomeSubmit = async (e) => {
     e.preventDefault();
+    const today = new Date().toISOString().split("T")[0];
+    if (financeData.date > today) {
+      setError("Date cannot be in the future");
+      return;
+    }
     try {
       const incomeData = {
         income_type: financeData.income_type,
@@ -100,6 +151,11 @@ const FarmFinance = () => {
   // Handle expense submission
   const handleExpenseSubmit = async (e) => {
     e.preventDefault();
+    const today = new Date().toISOString().split("T")[0];
+    if (financeData.date > today) {
+      setError("Date cannot be in the future");
+      return;
+    }
     try {
       const expenseData = {
         expense_type: financeData.expense_type,
@@ -291,7 +347,74 @@ const FarmFinance = () => {
             </div>
           </div>
         </div>
-      </div>
+
+        <div className="enhanced-summary">
+  {enhancedSummary && enhancedSummary.current_month ? (
+    <div>
+      <h2>Finance Summary - {enhancedSummary.current_month.month}</h2>
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Total</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* Income Section */}
+          {enhancedSummary.current_month.income?.breakdown.map((income, index) => (
+            <tr key={index}>
+              <td>{index === 0 ? "Income" : ""}</td>
+              <td>{income.income_type}</td>
+              <td>{income.total}</td>
+              <td>{income.percentage}%</td>
+            </tr>
+          ))}
+          <tr>
+            <td colSpan="2"><b>Total Income</b></td>
+            <td colSpan="2">
+              {enhancedSummary.current_month.income?.total} (Daily Avg: {enhancedSummary.current_month.income?.daily_average})
+            </td>
+          </tr>
+
+          {/* Expenses Section */}
+          {enhancedSummary.current_month.expenses?.breakdown.map((expense, index) => (
+            <tr key={index}>
+              <td>{index === 0 ? "Expenses" : ""}</td>
+              <td>{expense.expense_type}</td>
+              <td>{expense.total}</td>
+              <td>{expense.percentage}%</td>
+            </tr>
+          ))}
+          <tr>
+            <td colSpan="2"><b>Total Expenses</b></td>
+            <td colSpan="2">
+              {enhancedSummary.current_month.expenses?.total} (Daily Avg: {enhancedSummary.current_month.expenses?.daily_average})
+            </td>
+          </tr>
+
+          {/* Profit/Loss Section */}
+          <tr>
+            <td><b>Net Profit/Loss</b></td>
+            <td colSpan="3">{enhancedSummary.current_month.net_profit_loss} (Status: {enhancedSummary.current_month.status})</td>
+          </tr>
+          <tr>
+            <td><b>Profit Margin</b></td>
+            <td colSpan="3">{enhancedSummary.summary_metrics?.profit_margin}%</td>
+          </tr>
+          <tr>
+            <td><b>Expense Ratio</b></td>
+            <td colSpan="3">{enhancedSummary.summary_metrics?.expense_ratio}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div>Loading enhanced summary data...</div>
+  )}
+</div>
+    </div>
     </div>
   );
 };
