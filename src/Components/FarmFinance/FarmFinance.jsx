@@ -1,16 +1,16 @@
-import React, { useState, useEffect ,useCallback} from 'react';
-import axios from 'axios';
-import './FarmFinance.css';
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import "./FarmFinance.css";
 
 const FarmFinance = () => {
   // State for form data
   const [financeData, setFinanceData] = useState({
-    income_type: '',
-    expense_type: '',
-    amount: '',
-    date: '',
+    income_type: "",
+    expense_type: "",
+    amount: "",
+    date: "",
   });
-  
+
   const fetchEnhancedSummary = async () => {
     try {
       const response = await fetch(
@@ -18,7 +18,8 @@ const FarmFinance = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        if (data && data.current_month) {  // Check if data has the expected structure
+        if (data && data.current_month) {
+          // Check if data has the expected structure
           setEnhancedSummary(data);
           setEnhancedsummaryError(null);
         } else {
@@ -30,31 +31,33 @@ const FarmFinance = () => {
       }
     } catch (error) {
       console.error("Error fetching monthly summary:", error);
-      setEnhancedsummaryError("An error occurred while fetching monthly summary.");
+      setEnhancedsummaryError(
+        "An error occurred while fetching monthly summary."
+      );
     }
   };
 
   const [enhancedSummary, setEnhancedSummary] = useState({
     current_month: {
-      month: '',
+      month: "",
       income: {
         breakdown: [],
         total: 0,
-        daily_average: 0
+        daily_average: 0,
       },
       expenses: {
         breakdown: [],
         total: 0,
-        daily_average: 0
+        daily_average: 0,
       },
       net_profit_loss: 0,
-      status: ''
+      status: "",
     },
     summary_metrics: {
       profit_margin: 0,
-      expense_ratio: 0
-    }
-  });//added
+      expense_ratio: 0,
+    },
+  }); //added
   const [enhancedSummaryError, setEnhancedsummaryError] = useState(""); //added
   // State for summary data
   const [financeSummary, setFinanceSummary] = useState({
@@ -76,9 +79,9 @@ const FarmFinance = () => {
     try {
       setIsLoading(true);
       const [summaryRes, incomesRes, expensesRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/finance-summary/'),
-        axios.get('http://127.0.0.1:8000/api/incomes/'),
-        axios.get('http://127.0.0.1:8000/api/expenses/'),
+        axios.get("http://127.0.0.1:8000/api/finance-summary/"),
+        axios.get("http://127.0.0.1:8000/api/incomes/"),
+        axios.get("http://127.0.0.1:8000/api/expenses/"),
       ]);
 
       setFinanceSummary(summaryRes.data);
@@ -86,27 +89,26 @@ const FarmFinance = () => {
       setExpenseBreakdown(expensesRes.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load financial data. Please try again.');
+      console.error("Error fetching data:", err);
+      setError("Failed to load financial data. Please try again.");
     } finally {
       setIsLoading(false);
     }
   }, [setFinanceSummary, setIncomeBreakdown, setExpenseBreakdown, setError]);
 
-   // Helper function to group and sum data by type
-        const groupByType = (data, typeKey) => {
-          const grouped = data.reduce((acc, item) => {
-            const type = item[typeKey];
-            const amount = parseFloat(item.amount);
-            if (!acc[type]) {
-              acc[type] = 0;
-            }
-            acc[type] += amount;
-            return acc;
-          }, {});
-          return Object.entries(grouped).map(([type, total]) => ({ type, total }));
-        };
-
+  // Helper function to group and sum data by type
+  const groupByType = (data, typeKey) => {
+    const grouped = data.reduce((acc, item) => {
+      const type = item[typeKey];
+      const amount = parseFloat(item.amount);
+      if (!acc[type]) {
+        acc[type] = 0;
+      }
+      acc[type] += amount;
+      return acc;
+    }, {});
+    return Object.entries(grouped).map(([type, total]) => ({ type, total }));
+  };
 
   // Fetch financial data
   useEffect(() => {
@@ -135,16 +137,16 @@ const FarmFinance = () => {
       const incomeData = {
         income_type: financeData.income_type,
         amount: parseFloat(financeData.amount),
-        date: financeData.date || new Date().toISOString().split('T')[0],
+        date: financeData.date || new Date().toISOString().split("T")[0],
       };
 
-      await axios.post('http://127.0.0.1:8000/api/incomes/', incomeData);
-      alert('Income record saved successfully!');
-      fetchData();// Reload to fetch updated data
-      setFinanceData({ income_type: '', amount: '', date: '' }); // Clear form fields
+      await axios.post("http://127.0.0.1:8000/api/incomes/", incomeData);
+      alert("Income record saved successfully!");
+      fetchData(); // Reload to fetch updated data
+      setFinanceData({ income_type: "", amount: "", date: "" }); // Clear form fields
     } catch (error) {
-      console.error('Error submitting income:', error);
-      alert('Failed to save income record. Please try again.');
+      console.error("Error submitting income:", error);
+      alert("Failed to save income record. Please try again.");
     }
   };
 
@@ -160,17 +162,16 @@ const FarmFinance = () => {
       const expenseData = {
         expense_type: financeData.expense_type,
         amount: parseFloat(financeData.amount),
-        date: financeData.date || new Date().toISOString().split('T')[0],
+        date: financeData.date || new Date().toISOString().split("T")[0],
       };
 
-      await axios.post('http://127.0.0.1:8000/api/expenses/', expenseData);
-      alert('Expense record saved successfully!');
-      fetchData(); 
-      setFinanceData({ income_type: '', amount: '', date: '' }); // Clear form fields
-      
+      await axios.post("http://127.0.0.1:8000/api/expenses/", expenseData);
+      alert("Expense record saved successfully!");
+      fetchData();
+      setFinanceData({ income_type: "", amount: "", date: "" }); // Clear form fields
     } catch (error) {
-      console.error('Error submitting expense:', error);
-      alert('Failed to save expense record. Please try again.');
+      console.error("Error submitting expense:", error);
+      alert("Failed to save expense record. Please try again.");
     }
   };
 
@@ -182,18 +183,18 @@ const FarmFinance = () => {
     return <div className="error-message">{error}</div>;
   }
 
-    // Add new helper function for aggregating data
-    const aggregateFinancialData = (data, typeKey) => {
-      return data.reduce((acc, item) => {
-        const type = item[typeKey];
-        const amount = parseFloat(item.amount);
-        if (!acc[type]) {
-          acc[type] = 0;
-        }
-        acc[type] += amount;
-        return acc;
-      }, {});
-    };
+  // Add new helper function for aggregating data
+  const aggregateFinancialData = (data, typeKey) => {
+    return data.reduce((acc, item) => {
+      const type = item[typeKey];
+      const amount = parseFloat(item.amount);
+      if (!acc[type]) {
+        acc[type] = 0;
+      }
+      acc[type] += amount;
+      return acc;
+    }, {});
+  };
   return (
     <div id="farmFinance" className="farm-finance-container">
       <div className="finance-form">
@@ -245,7 +246,9 @@ const FarmFinance = () => {
             />
           </label>
 
-          <button type="submit" className="submit-button">Save Income</button>
+          <button type="submit" className="submit-button">
+            Save Income
+          </button>
         </form>
 
         {/* Expense Form */}
@@ -296,21 +299,33 @@ const FarmFinance = () => {
             />
           </label>
 
-          <button type="submit" className="submit-button">Save Expense</button>
+          <button type="submit" className="submit-button">
+            Save Expense
+          </button>
         </form>
       </div>
 
-     {/* Finance Summary with Aggregated Data */}
-     <div className="finance-summary">
+      {/* Finance Summary with Aggregated Data */}
+      <div className="finance-summary">
         <h2>Finance Summary</h2>
         <div className="summary-card">
           <div className="summary-details">
-            <p className="total-item">Total Income: Rs. {financeSummary.totalIncome.toFixed(2)}</p>
-            <p className="total-item">Total Expenses: Rs. {financeSummary.totalExpenses.toFixed(2)}</p>
-            <p className={`total-item ${financeSummary.netProfit >= 0 ? 'profit' : 'loss'}`}>
+            <p className="total-item">
+              Total Income: Rs. {financeSummary.totalIncome.toFixed(2)}
+            </p>
+            <p className="total-item">
+              Total Expenses: Rs. {financeSummary.totalExpenses.toFixed(2)}
+            </p>
+            <p
+              className={`total-item ${
+                financeSummary.netProfit >= 0 ? "profit" : "loss"
+              }`}
+            >
               Net Profit: Rs. {financeSummary.netProfit.toFixed(2)}
             </p>
-            <p className="total-item">Cash Balance: Rs. {financeSummary.cashBalance.toFixed(2)}</p>
+            <p className="total-item">
+              Cash Balance: Rs. {financeSummary.cashBalance.toFixed(2)}
+            </p>
           </div>
         </div>
 
@@ -319,28 +334,35 @@ const FarmFinance = () => {
           <div className="breakdown-section">
             <h3>Income Breakdown</h3>
             <div className="breakdown-items">
-              {Object.entries(aggregateFinancialData(incomeBreakdown, 'income_type')).map(([type, amount]) => (
+              {Object.entries(
+                aggregateFinancialData(incomeBreakdown, "income_type")
+              ).map(([type, amount]) => (
                 <div key={type} className="breakdown-item">
                   <span className="type">{type}</span>
                   <span className="amount">Rs. {amount.toFixed(2)}</span>
                   <span className="percentage">
-                    ({((amount / financeSummary.totalIncome) * 100).toFixed(1)}%)
+                    ({((amount / financeSummary.totalIncome) * 100).toFixed(1)}
+                    %)
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-       {/* Aggregated Expense Breakdown */}
-       <div className="breakdown-section">
+          {/* Aggregated Expense Breakdown */}
+          <div className="breakdown-section">
             <h3>Expense Breakdown</h3>
             <div className="breakdown-items">
-              {Object.entries(aggregateFinancialData(expenseBreakdown, 'expense_type')).map(([type, amount]) => (
+              {Object.entries(
+                aggregateFinancialData(expenseBreakdown, "expense_type")
+              ).map(([type, amount]) => (
                 <div key={type} className="breakdown-item">
                   <span className="type">{type}</span>
                   <span className="amount">Rs. {amount.toFixed(2)}</span>
                   <span className="percentage">
-                    ({((amount / financeSummary.totalExpenses) * 100).toFixed(1)}%)
+                    (
+                    {((amount / financeSummary.totalExpenses) * 100).toFixed(1)}
+                    %)
                   </span>
                 </div>
               ))}
@@ -349,72 +371,96 @@ const FarmFinance = () => {
         </div>
 
         <div className="enhanced-summary">
-  {enhancedSummary && enhancedSummary.current_month ? (
-    <div>
-      <h2>Finance Summary - {enhancedSummary.current_month.month}</h2>
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Total</th>
-            <th>Percentage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Income Section */}
-          {enhancedSummary.current_month.income?.breakdown.map((income, index) => (
-            <tr key={index}>
-              <td>{index === 0 ? "Income" : ""}</td>
-              <td>{income.income_type}</td>
-              <td>{income.total}</td>
-              <td>{income.percentage}%</td>
-            </tr>
-          ))}
-          <tr>
-            <td colSpan="2"><b>Total Income</b></td>
-            <td colSpan="2">
-              {enhancedSummary.current_month.income?.total} (Daily Avg: {enhancedSummary.current_month.income?.daily_average})
-            </td>
-          </tr>
+          {enhancedSummary && enhancedSummary.current_month ? (
+            <div>
+              <h2>Finance Summary - {enhancedSummary.current_month.month}</h2>
+              <table border="1" cellPadding="10">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Total</th>
+                    <th>Percentage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Income Section */}
+                  {enhancedSummary.current_month.income?.breakdown.map(
+                    (income, index) => (
+                      <tr key={index}>
+                        <td>{index === 0 ? "Income" : ""}</td>
+                        <td>{income.income_type}</td>
+                        <td>{income.total}</td>
+                        <td>{income.percentage}%</td>
+                      </tr>
+                    )
+                  )}
+                  <tr>
+                    <td colSpan="2">
+                      <b>Total Income</b>
+                    </td>
+                    <td colSpan="2">
+                      {enhancedSummary.current_month.income?.total} (Daily Avg:{" "}
+                      {enhancedSummary.current_month.income?.daily_average})
+                    </td>
+                  </tr>
 
-          {/* Expenses Section */}
-          {enhancedSummary.current_month.expenses?.breakdown.map((expense, index) => (
-            <tr key={index}>
-              <td>{index === 0 ? "Expenses" : ""}</td>
-              <td>{expense.expense_type}</td>
-              <td>{expense.total}</td>
-              <td>{expense.percentage}%</td>
-            </tr>
-          ))}
-          <tr>
-            <td colSpan="2"><b>Total Expenses</b></td>
-            <td colSpan="2">
-              {enhancedSummary.current_month.expenses?.total} (Daily Avg: {enhancedSummary.current_month.expenses?.daily_average})
-            </td>
-          </tr>
+                  {/* Expenses Section */}
+                  {enhancedSummary.current_month.expenses?.breakdown.map(
+                    (expense, index) => (
+                      <tr key={index}>
+                        <td>{index === 0 ? "Expenses" : ""}</td>
+                        <td>{expense.expense_type}</td>
+                        <td>{expense.total}</td>
+                        <td>{expense.percentage}%</td>
+                      </tr>
+                    )
+                  )}
+                  <tr>
+                    <td colSpan="2">
+                      <b>Total Expenses</b>
+                    </td>
+                    <td colSpan="2">
+                      {enhancedSummary.current_month.expenses?.total} (Daily
+                      Avg:{" "}
+                      {enhancedSummary.current_month.expenses?.daily_average})
+                    </td>
+                  </tr>
 
-          {/* Profit/Loss Section */}
-          <tr>
-            <td><b>Net Profit/Loss</b></td>
-            <td colSpan="3">{enhancedSummary.current_month.net_profit_loss} (Status: {enhancedSummary.current_month.status})</td>
-          </tr>
-          <tr>
-            <td><b>Profit Margin</b></td>
-            <td colSpan="3">{enhancedSummary.summary_metrics?.profit_margin}%</td>
-          </tr>
-          <tr>
-            <td><b>Expense Ratio</b></td>
-            <td colSpan="3">{enhancedSummary.summary_metrics?.expense_ratio}%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  ) : (
-    <div>Loading enhanced summary data...</div>
-  )}
-</div>
-    </div>
+                  {/* Profit/Loss Section */}
+                  <tr>
+                    <td>
+                      <b>Net Profit/Loss</b>
+                    </td>
+                    <td colSpan="3">
+                      {enhancedSummary.current_month.net_profit_loss} (Status:{" "}
+                      {enhancedSummary.current_month.status})
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <b>Profit Margin</b>
+                    </td>
+                    <td colSpan="3">
+                      {enhancedSummary.summary_metrics?.profit_margin}%
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <b>Expense Ratio</b>
+                    </td>
+                    <td colSpan="3">
+                      {enhancedSummary.summary_metrics?.expense_ratio}%
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div>Loading enhanced summary data...</div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
