@@ -178,7 +178,7 @@ const MilkRecords = () => {
   return (
     <div id="milkRecords" className="milkrecords">
       <div className="record-milk">
-        <h2>Milk Records</h2>
+        {/* <h2>Milk Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
 

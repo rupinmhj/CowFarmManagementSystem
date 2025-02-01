@@ -5,7 +5,7 @@
   display: flex;
   /* gap:30px; */
   flex-direction: row;
-  border: 2px solid rgb(18, 69, 44);
+  /* border: 2px solid rgb(18, 69, 44); */
   border-radius: 5px;
   justify-content: space-around;
   align-items: flex-start;

@@ -36,6 +36,7 @@ body {
   }
   
   .nav-items {
+    margin-left: 20px;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -47,7 +48,7 @@ body {
     display: inline-block;
   }
   
-  .nav-items a {
+  .nav-items  {
     text-decoration: none;
     color: white; 
     font-size: 16px;
@@ -57,17 +58,20 @@ body {
     transition: background-color 0.3s ease;
   }
   
-  .nav-items a:hover {
+  .nav-button:hover {
     background-color: #45a049; 
   }
   
-  .nav-items a:active {
+  .nav-button:active {
     background-color: #3c8d40; 
   }
   .logout-container {
+    position: fixed;
+    right: 2px;
     display: flex;
     align-items: center;
-    margin-left: 710px;
+    /* margin-left: 1210px; */
+    margin-right: 110px;
     /* margin-top:-5px; */
   }
   

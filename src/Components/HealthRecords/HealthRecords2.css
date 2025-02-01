@@ -1,0 +1,140 @@
+.healthrecords {
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-size: large;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border: 2px solid rgb(18, 69, 44);
+    border-radius: 5px;
+    justify-content: space-around;
+    align-items: flex-start;
+    height: auto; /* Adjusted for flexibility */
+    width: 80vw;
+    max-width: 1200px;
+    margin: 10px auto; /* Centered the container */
+    padding: 20px;
+  }
+  
+  /* Health record form container */
+  .record-health {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Form elements */
+  input, textarea, select, button {
+    background-color: #246244;
+    color: white;
+    min-width: 150px;
+    max-width: 200px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 16px;
+  }
+  
+  button {
+    margin-top: 20px; /* Adjusted for better spacing */
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #1c4d33;
+  }
+  
+  .label {
+    font-size: 20px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  /* Table Container */
+  .table-container {
+    max-height: calc(7 * 150px);
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .health-detail {
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  .table-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  #searchInput {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  /* Table Styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  th, td {
+    font-size: 18px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  th {
+    background-color: #f4f4f4;
+    color: #555;
+    font-weight: bold;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .healthrecords {
+      flex-direction: column;
+      width: 90vw;
+      align-items: center;
+    }
+  
+    input, textarea, select, button {
+      width: 100%;
+      max-width: none;
+    }
+  
+    table {
+      font-size: 14px;
+      overflow-x: auto;
+    }
+  
+    #searchInput {
+      font-size: 14px;
+    }
+  }
+  

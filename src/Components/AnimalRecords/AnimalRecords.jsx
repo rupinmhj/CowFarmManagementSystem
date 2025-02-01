@@ -179,7 +179,7 @@ const AnimalRecords = () => {
   return (
     <div id="animalRecords" className="animalrecords">
       <div className="record-animal">
-        <h2>Animal Records</h2>
+        {/* <h2>Animal Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
        

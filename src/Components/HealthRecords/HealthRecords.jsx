@@ -145,7 +145,7 @@ const HealthRecords = () => {
   return (
     <div id="healthRecords" className="healthrecords">
       <div className="record-health">
-        <h2>Health Records</h2>
+        {/* <h2>Health Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
 

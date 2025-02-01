@@ -1,0 +1,186 @@
+.animalrecords {
+    margin-top: 25px;
+    font-family: sans-serif;
+    font-size: large;
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    border: 2px solid rgb(18, 69, 44);
+    border-radius: 5px;
+    justify-content: space-around;
+    align-items: flex-start;
+    height: auto; /* Set height to auto for responsiveness */
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 15px;
+  }
+  
+  /* Parent Container */
+  .animal-records {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    height: auto;
+    justify-content: flex-start;
+  }
+  
+  /* Table Responsiveness */
+  .table-container {
+    max-height: calc(7 * 200px);
+    border: 1px solid #ccc;
+    padding: 20px;
+    max-width: 100%;
+    overflow-x: auto; /* Enables horizontal scroll on small screens */
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Form Elements */
+  input, textarea, select, button {
+    background-color: rgb(87, 164, 109);
+    width: 100%; /* Adjust width dynamically */
+    max-width: 200px;
+    height: 40px;
+    padding: 10px;
+  }
+  
+  /* Buttons */
+  button {
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  
+  .editButton {
+    background-color: #11505d;
+  }
+  
+  .deleteButton {
+    background-color: rgb(241, 62, 42);
+  }
+  
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    list-style-type: none;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+  
+  .pagination li {
+    background-color: #555;
+    margin: 5px;
+  }
+  
+  .pagination li a {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .pagination li a:hover,
+  .pagination li a.active {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  /* Media Queries for Different Screens */
+  
+  /* Large screens (desktops, large laptops) */
+  @media (max-width: 1200px) {
+    .animalrecords {
+      width: 90%;
+    }
+  }
+  
+  /* Medium screens (laptops, tablets) */
+  @media (max-width: 1024px) {
+    .animalrecords {
+      flex-direction: column;
+      align-items: center;
+      height: auto;
+    }
+    
+    input, textarea, select, button {
+      max-width: 180px;
+    }
+  
+    table {
+      font-size: 16px;
+    }
+  }
+  
+  /* Tablets (iPads, small laptops) */
+  @media (max-width: 768px) {
+    .animalrecords {
+      width: 95%;
+      padding: 10px;
+    }
+  
+    th, td {
+      font-size: 16px;
+      padding: 10px;
+    }
+  
+    .pagination li a {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  
+    button {
+      font-size: 14px;
+      padding: 8px;
+    }
+  }
+  
+  /* Mobile devices */
+  @media (max-width: 600px) {
+    .animalrecords {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 5px;
+      border: none;
+    }
+  
+    .table-container {
+      padding: 10px;
+    }
+  
+    table {
+      font-size: 14px;
+    }
+  
+    th, td {
+      font-size: 14px;
+      padding: 8px;
+    }
+  
+    #searchInput {
+      font-size: 14px;
+      width: 100%;
+    }
+  
+    input, textarea, select, button {
+      width: 100%;
+      max-width: none;
+    }
+  
+    button {
+      font-size: 12px;
+      padding: 6px;
+    }
+  }
+  
