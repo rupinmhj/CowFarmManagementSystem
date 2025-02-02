@@ -261,7 +261,7 @@ const HealthRecords = () => {
             </label>
 
             <div className="button-group">
-              <button type="submit" disabled={loading}>
+              <button className="submit-button" type="submit" disabled={loading}>
                 {loading
                   ? "Processing..."
                   : editingId

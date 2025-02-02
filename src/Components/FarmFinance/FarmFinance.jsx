@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect} from "react";
 import axios from "axios";
 import "./FarmFinance.css";
+import MonthlyFinanceChart from "./MonthlyFinanceChart";
+import YearlyFinanceChart from "./YearlyFinanceChart";
 
 const FarmFinance = () => {
   // State for form data
@@ -10,9 +12,18 @@ const FarmFinance = () => {
     amount: "",
     date: "",
   });
+// New state to toggle table visibility
+const [showTable, setShowTable] = useState(false);
+const toggleTable = () => {
+  setShowTable((prevState) => !prevState);
+};
+const [showTable2, setShowTable2] = useState(false);
+const toggleTable2 = () => {
+  setShowTable2((prevState) => !prevState);
+};
 
   // State for filters
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() +1); // Current month
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
 
   const [enhancedSummary, setEnhancedSummary] = useState({
@@ -308,7 +319,15 @@ const FarmFinance = () => {
                 </option>
               ))}
             </select>
-          <table className="summary-table">
+            <MonthlyFinanceChart enhancedSummary={enhancedSummary} />
+            <br />
+                <br />
+              {/* Toggle button for table display */}
+          <button onClick={toggleTable} className="submit-button">
+            {showTable ? "Hide Summary Table" : "Show Summary Table"}
+          </button>
+                
+          {showTable&& (<table className="summary-table">
             <thead>
               <tr>
                 <th>Category</th>
@@ -349,12 +368,18 @@ const FarmFinance = () => {
                 <td colSpan="2">{enhancedSummary.net_profit_loss}</td>
               </tr>
             </tbody>
-          </table>
+          </table>)}
         </div>
-                <hr />
-                <hr />
+                <br />
+                <div className="line"></div>
+                <div className="line"></div>
+                
         {/* Yearly Summary */}
-        <div className="summary-section">
+       
+            <br />
+                <br />
+              {/* Toggle button for table display */}
+         
           <h3>Yearly Summary - {selectedYear}</h3>
           <select
               className="input-field"
@@ -367,6 +392,16 @@ const FarmFinance = () => {
                 </option>
               ))}
             </select>
+            <YearlyFinanceChart yearSummary={yearSummary} />
+            <br />
+            <br />
+            <button onClick={toggleTable2} className="submit-button">
+            {showTable2 ? "Hide Summary Table" : "Show Summary Table"}
+            
+          </button>
+          <br />
+        {showTable2 &&(<div className="summary-section">
+        
           <table className="summary-table">
             <thead>
               <tr  className="table-secondary">
@@ -409,7 +444,7 @@ const FarmFinance = () => {
               </tr>
             </tbody>
           </table>
-        </div>
+        </div>)}
       </div>
     </div>
   );

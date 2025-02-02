@@ -313,7 +313,7 @@ const AnimalRecords = () => {
             </label>
 
             <div className="button-group">
-              <button type="submit" disabled={loading}>
+              <button className="submit-button" type="submit" disabled={loading}>
                 {loading ? 'Saving...' : 'Save Record'}
               </button>
             </div>

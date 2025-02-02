@@ -59,11 +59,12 @@ body {
   }
   
   .nav-button:hover {
-    background-color: #45a049; 
+    background-color:#246244; 
   }
   
-  .nav-button:active {
-    background-color: #3c8d40; 
+  .nav-button.active {
+    background-color: #45a049;
+    color: white;
   }
   .logout-container {
     position: fixed;

@@ -250,7 +250,7 @@ const MilkRecords = () => {
               />
             </label>
 
-            <button type="submit" disabled={loading}>
+            <button className="submit-button" type="submit" disabled={loading}>
               Save Milk Record
             </button>
           </div>
@@ -318,21 +318,35 @@ const MilkRecords = () => {
                 )}
               </tbody>
             </table>
-            <div className="pagination">
-          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button key={page} onClick={() => paginate(page)} className={page === currentPage ? 'active' : ''}>
-              {page}
-            </button>
-          ))}
-          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-            Next
-          </button>
-        </div>
-        
+            <div className="pagination" id="page">
+  <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+    Previous
+  </button>
+  
+  {Array.from({ length: 5 }, (_, i) => {
+    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+    return start + i;
+  })
+  .filter(page => page <= totalPages)
+  .map((page) => (
+    <button 
+      key={page} 
+      onClick={() => paginate(page)} 
+      className={page === currentPage ? 'active' : ''}
+    >
+      {page}
+    </button>
+  ))}
+    
+  <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+    Next
+  </button>
+</div>
+
           </div>
+          <br />
+          <div className="line"></div>
+<div className="line"></div>
         {/* </div> */}
         <div className="record-milk-summary">
           <h2>Monthly Milk Yield Summary</h2>
