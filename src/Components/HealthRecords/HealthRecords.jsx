@@ -54,6 +54,7 @@ const HealthRecords = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     setLoading(true);
     try {
       const url = editingId
@@ -144,7 +145,7 @@ const HealthRecords = () => {
   return (
     <div id="healthRecords" className="healthrecords">
       <div className="record-health">
-        <h2>Health Records</h2>
+        {/* <h2>Health Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
 
@@ -168,17 +169,7 @@ const HealthRecords = () => {
                 ))}
               </select>
             </label>
-            {/* <label className="label">
-              Cow ID: *
-              <input
-                className="area"
-                type="number"
-                name="cow"
-                value={healthData.cow}
-                onChange={handleChange}
-                required
-              />
-            </label> */}
+          
 
             <label className="label">
               Health Condition: *
@@ -270,7 +261,7 @@ const HealthRecords = () => {
             </label>
 
             <div className="button-group">
-              <button type="submit" disabled={loading}>
+              <button className="submit-button" type="submit" disabled={loading}>
                 {loading
                   ? "Processing..."
                   : editingId
@@ -297,7 +288,7 @@ const HealthRecords = () => {
 </div>
 
           
-          <table id="healthTable">
+          <table id="healthTable" className="table">
             <thead>
               <tr>
                 {/* <th>ID</th> */}

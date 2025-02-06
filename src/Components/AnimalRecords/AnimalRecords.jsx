@@ -179,7 +179,7 @@ const AnimalRecords = () => {
   return (
     <div id="animalRecords" className="animalrecords">
       <div className="record-animal">
-        <h2>Animal Records</h2>
+        {/* <h2>Animal Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
        
@@ -313,7 +313,7 @@ const AnimalRecords = () => {
             </label>
 
             <div className="button-group">
-              <button type="submit" disabled={loading}>
+              <button className="submit-button" type="submit" disabled={loading}>
                 {loading ? 'Saving...' : 'Save Record'}
               </button>
             </div>

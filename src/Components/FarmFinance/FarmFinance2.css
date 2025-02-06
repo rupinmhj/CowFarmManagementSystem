@@ -1,38 +1,41 @@
 .farm-finance-container {
-  margin-top: 10px;
-  font-family: sans-serif;
-  font-size: large;
-  display: flex;
-  /* gap:30px; */
-  flex-direction: row;
-  /* border: 2px solid rgb(18, 69, 44); */
-  border-radius: 5px;
-  justify-content:space-around;
-  align-items:flex-start;
-  height: 2600px;
-  width: 80vw;
-  margin-left: 200px;
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-size: large;
+    display: flex;
+    flex-direction: row;
+    border: 2px solid rgb(18, 69, 44);
+    border-radius: 5px;
+    justify-content: space-around;
+    align-items: flex-start;
+    height: auto;
+    width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
   }
-  .expenses{
+  
+  .expenses {
     margin-top: 20px;
   }
- .line{
-  height: 2px;
-  background-color: #28a745;
- }
+  
   .finance-form {
     width: 35%;
     margin-left: 30px;
   }
-  .finance-form h2{
+  
+  .finance-form h2 {
     text-align: left;
   }
- .finance-form h3 {
+  
+  .finance-form h3 {
     margin-top: 10px;
     text-align: left;
     color: #444;
   }
- 
+  
   .label {
     display: flex;
     flex-direction: column;
@@ -40,7 +43,7 @@
     font-size: 16px;
     color: #333;
   }
- 
+  
   .input-field {
     padding: 10px;
     font-size: 14px;
@@ -48,7 +51,7 @@
     border-radius: 5px;
     width: 100%;
   }
- 
+  
   .submit-button {
     display: block;
     width: 100%;
@@ -62,16 +65,19 @@
     cursor: pointer;
     margin-top: 10px;
   }
- 
+  
   .submit-button:hover {
     background-color: #459256;
   }
- hr{
-  opacity: 122.25;
- }
- #rowcolor{
-  background: #42a77a;
- }
+  
+  hr {
+    opacity: 0.5;
+  }
+  
+  #rowcolor {
+    background: #42a77a;
+  }
+  
   .finance-summary {
     width: 45%;
     padding: 20px;
@@ -79,16 +85,17 @@
     border-radius: 5px;
     border: 1px solid #ccc;
   }
- 
+  
   .finance-summary h2 {
     text-align: center;
     color: #444;
   }
- 
+  
   .finance-summary p {
     font-size: 18px;
     margin-bottom: 10px;
   }
+  
   .finance-summary {
     width: 1000px;
     padding: 20px;
@@ -96,9 +103,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  .summary-section{
-    margin-top: 20px;
-  }
+  
   .summary-card {
     background: #f8f9fa;
     padding: 15px;
@@ -142,7 +147,6 @@
     gap: 10px;
     margin-top: 10px;
     justify-content: center;
-    /* align-items: center; */
   }
   
   .breakdown-item {
@@ -153,12 +157,13 @@
     padding: 8px;
     border-bottom: 1px solid #dee2e6;
     margin-bottom: 10px;
-    /* gap:30px; */
   }
+  
   .breakdown-item > span {
-    margin-right: 20px; /* add some margin between spans */
+    margin-right: 20px;
     align-self: center;
   }
+  
   .breakdown-item .type {
     font-weight: 500;
   }
@@ -171,14 +176,57 @@
     color: #6c757d;
     font-size: 0.9em;
   }
- 
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .farm-finance-container {
+      flex-direction: column;
+      align-items: center;
+      width: 90vw;
+    }
+  
+    .finance-form, .finance-summary {
+      width: 90%;
+      margin-left: 0;
+    }
+  
+    .finance-summary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .farm-finance-container {
+      width: 100%;
+      padding: 15px;
+    }
+  
+    .finance-form, .finance-summary {
+      width: 100%;
+    }
+  
+    .breakdown-container {
+      grid-template-columns: 1fr;
+    }
+  }
+  
   @media (max-width: 600px) {
     .input-field {
       font-size: 13px;
     }
- 
+  
     .submit-button {
       font-size: 14px;
     }
+  
+    .breakdown-item {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .farm-finance-container {
+      padding: 10px;
+    }
   }
- 
+  
