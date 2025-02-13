@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./MilkRecords.css";
 
 const MilkRecords = () => {
+  const today = new Date().toISOString().split("T")[0];
   const initialFormState = {
     milking_date: "",
     cow: "",
@@ -192,6 +193,7 @@ const MilkRecords = () => {
                 name="milking_date"
                 value={milkData.milking_date}
                 onChange={handleChange}
+                max={today}
                 required
               />
             </label>

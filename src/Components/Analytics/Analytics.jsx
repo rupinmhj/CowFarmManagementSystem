@@ -65,7 +65,7 @@ const Analytics = () => {
 
 
   return (
-    <div className="animalrecords analytics">
+    <div className=" analytics">
       <div className="record-animal anlytics-cow">
         <form onSubmit={handleSubmit}>
           <div className="animal-records">
@@ -155,22 +155,24 @@ const Analytics = () => {
         </form>
       </div>
 
-
+      <div>
       {prediction && prediction.status === "success" && (
-        <div className="showanimalrecords">
+        <div className="showanimalrecordsanalytics">
           <h2>Prediction Results</h2>
-          <div className="table-container">
+          <div className="table-container table">
             <table>
               <tbody>
                 <tr>
-                  <td>Estimated Daily Milk Yield</td>
-                  <td>{prediction.predicted_milk_yield} liters</td>
+                  <td className="bluebox">Estimated Daily Milk Yield</td>
+                  <td className="greenbox">{prediction.predicted_milk_yield} liters</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
       )}
+      </div>
+      
     </div>
   );
 };

@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import './AnimalRecords.css';
-import api from '../../api';
+import React, { useState, useEffect } from "react";
+import "./AnimalRecords.css";
+import api from "../../api";
 
 const AnimalRecords = () => {
+  const today = new Date().toISOString().split("T")[0];
   const initialFormState = {
     id: null, // Added to differentiate between creating and updating records
-    cow_name: '',
-    breed: '',
-    dob: '',
-    date_of_arrival: '',
-    weight: '',
+    cow_name: "",
+    breed: "",
+    dob: "",
+    date_of_arrival: "",
+    weight: "",
     pregnancy_status: false,
-    due_date: '',
-    lactation_cycle: '',
-    health_history: '',
-    breeding_history: '',
+    due_date: "",
+    lactation_cycle: "",
+    health_history: "",
+    breeding_history: "",
   };
 
   const [animalData, setAnimalData] = useState(initialFormState);
   const [animalRecords, setAnimalRecords] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -30,8 +31,15 @@ const AnimalRecords = () => {
   }, []);
 
   const validateForm = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const requiredFields = ['cow_name', 'breed', 'dob', 'date_of_arrival', 'weight', 'lactation_cycle'];
+    const today = new Date().toISOString().split("T")[0];
+    const requiredFields = [
+      "cow_name",
+      "breed",
+      "dob",
+      "date_of_arrival",
+      "weight",
+      "lactation_cycle",
+    ];
     for (let field of requiredFields) {
       if (!animalData[field]) {
         setError(`Please fill in the required field: ${field}`);
@@ -40,27 +48,27 @@ const AnimalRecords = () => {
     }
 
     if (animalData.dob > today) {
-      setError('Date of birth cannot be in the future');
+      setError("Date of birth cannot be in the future");
       return false;
     }
 
     if (animalData.date_of_arrival < animalData.dob) {
-      setError('Date of arrival cannot be before date of birth');
+      setError("Date of arrival cannot be before date of birth");
       return false;
     }
 
     if (animalData.date_of_arrival > today) {
-      setError('Date of arrival cannot be in the future');
+      setError("Date of arrival cannot be in the future");
       return false;
     }
 
     if (animalData.pregnancy_status) {
       if (!animalData.due_date) {
-        setError('Due date is required for pregnant animals');
+        setError("Due date is required for pregnant animals");
         return false;
       }
       if (animalData.due_date <= today) {
-        setError('Due date must be in the future for pregnant animals');
+        setError("Due date must be in the future for pregnant animals");
         return false;
       }
     }
@@ -71,32 +79,34 @@ const AnimalRecords = () => {
   const handleChange = (e) => {
     const { name, value, type } = e.target;
 
-    if (name === 'pregnancy_status') {
-      const isPregnant = value === 'true';
+    if (name === "pregnancy_status") {
+      const isPregnant = value === "true";
       setAnimalData((prevData) => ({
         ...prevData,
         pregnancy_status: isPregnant,
-        due_date: isPregnant ? prevData.due_date : '',
+        due_date: isPregnant ? prevData.due_date : "",
       }));
       return;
     }
 
     setAnimalData((prevData) => ({
       ...prevData,
-      [name]: type === 'checkbox' ? e.target.checked : value,
+      [name]: type === "checkbox" ? e.target.checked : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!validateForm()) return;
 
     const formattedData = {
       ...animalData,
       ...(animalData.pregnancy_status && animalData.due_date
-        ? { due_date: new Date(animalData.due_date).toISOString().split('T')[0] }
+        ? {
+            due_date: new Date(animalData.due_date).toISOString().split("T")[0],
+          }
         : { due_date: null }),
     };
 
@@ -105,18 +115,18 @@ const AnimalRecords = () => {
       if (animalData.id) {
         // Update existing record
         await api.put(`animal/${animalData.id}/`, formattedData);
-        alert('Animal Record Updated Successfully!');
+        alert("Animal Record Updated Successfully!");
       } else {
         // Create new record
-        await api.post('animal/', formattedData);
-        alert('Animal Record Saved Successfully!');
+        await api.post("animal/", formattedData);
+        alert("Animal Record Saved Successfully!");
       }
       setAnimalData(initialFormState);
       fetchAnimalRecords();
     } catch (error) {
       const errorMessage = error.response?.data
-        ? Object.values(error.response.data).flat().join(', ')
-        : 'Failed to save record. Please try again.';
+        ? Object.values(error.response.data).flat().join(", ")
+        : "Failed to save record. Please try again.";
       setError(errorMessage);
       console.error(error);
     } finally {
@@ -127,10 +137,10 @@ const AnimalRecords = () => {
   const fetchAnimalRecords = async () => {
     setLoading(true);
     try {
-      const response = await api.get('animal/');
+      const response = await api.get("animal/");
       setAnimalRecords(response.data);
     } catch (error) {
-      setError('Failed to fetch animal records.');
+      setError("Failed to fetch animal records.");
     } finally {
       setLoading(false);
     }
@@ -148,10 +158,10 @@ const AnimalRecords = () => {
     setLoading(true);
     try {
       await api.delete(`animal/${id}/`);
-      alert('Animal record deleted successfully!');
+      alert("Animal record deleted successfully!");
       fetchAnimalRecords();
     } catch (error) {
-      setError('Failed to delete record.');
+      setError("Failed to delete record.");
     } finally {
       setLoading(false);
     }
@@ -163,9 +173,10 @@ const AnimalRecords = () => {
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredRecords.length > 0
-    ? filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
-    : [];
+  const currentRecords =
+    filteredRecords.length > 0
+      ? filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
+      : [];
 
   const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
@@ -175,14 +186,13 @@ const AnimalRecords = () => {
     }
   };
 
-  
   return (
     <div id="animalRecords" className="animalrecords">
       <div className="record-animal">
         {/* <h2>Animal Records</h2> */}
         {error && <div className="error-message">{error}</div>}
         {loading && <div className="loading-message">Processing...</div>}
-       
+
         <form onSubmit={handleSubmit}>
           <div className="animal-records">
             <label className="label">
@@ -217,7 +227,7 @@ const AnimalRecords = () => {
                 name="dob"
                 value={animalData.dob}
                 onChange={handleChange}
-                max={new Date().toISOString().split('T')[0]}
+                max={today}
                 required
               />
             </label>
@@ -230,6 +240,7 @@ const AnimalRecords = () => {
                 name="date_of_arrival"
                 value={animalData.date_of_arrival}
                 onChange={handleChange}
+                max={today}
                 required
               />
             </label>
@@ -253,7 +264,7 @@ const AnimalRecords = () => {
               <select
                 className="area"
                 name="pregnancy_status"
-                value={animalData.pregnancy_status ? 'true' : 'false'}
+                value={animalData.pregnancy_status ? "true" : "false"}
                 onChange={handleChange}
               >
                 <option value="false">Not Pregnant</option>
@@ -270,7 +281,7 @@ const AnimalRecords = () => {
                   name="due_date"
                   value={animalData.due_date}
                   onChange={handleChange}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split("T")[0]}
                   required
                 />
               </label>
@@ -313,8 +324,12 @@ const AnimalRecords = () => {
             </label>
 
             <div className="button-group">
-              <button className="submit-button" type="submit" disabled={loading}>
-                {loading ? 'Saving...' : 'Save Record'}
+              <button
+                className="submit-button"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Record"}
               </button>
             </div>
           </div>
@@ -332,7 +347,7 @@ const AnimalRecords = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <table id="animalTable" className='table'>
+          <table id="animalTable" className="table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -352,11 +367,23 @@ const AnimalRecords = () => {
                   <td>{animal.breed}</td>
                   <td>{animal.weight}</td>
                   <td>{animal.lactation_cycle}</td>
-                  <td>{animal.pregnancy_status ? 'Pregnant' : 'Not Pregnant'}</td>
+                  <td>
+                    {animal.pregnancy_status ? "Pregnant" : "Not Pregnant"}
+                  </td>
                   {/* <td>{animal.daily_milk_yield || '-'}</td> */}
                   <td>
-                    <button className="editButton" onClick={() => handleEdit(animal.id)}>Edit</button>
-                    <button className="deleteButton" onClick={() => handleDelete(animal.id)}>Delete</button>
+                    <button
+                      className="editButton"
+                      onClick={() => handleEdit(animal.id)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="deleteButton"
+                      onClick={() => handleDelete(animal.id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -364,20 +391,28 @@ const AnimalRecords = () => {
           </table>
 
           <div className="pagination">
-          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button key={page} onClick={() => paginate(page)} className={page === currentPage ? 'active' : ''}>
-              {page}
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
             </button>
-          ))}
-          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-            Next
-          </button>
-        </div>
-
-          
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => paginate(page)}
+                className={page === currentPage ? "active" : ""}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

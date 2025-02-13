@@ -99,8 +99,12 @@ import logomain from '../../assets/mainlogo.png';
 
 function NavBar({ availableComponents, setActiveComponent, activeComponent }) {
   const handleLogout = () => {
-    window.location.href = '/signup';
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (confirmed) {
+      window.location.href = '/signup';
+    }
   };
+  
 
   // Map of component keys to display names
   const componentNames = {

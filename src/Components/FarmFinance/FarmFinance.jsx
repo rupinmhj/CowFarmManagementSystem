@@ -1,10 +1,11 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./FarmFinance.css";
 import MonthlyFinanceChart from "./MonthlyFinanceChart";
 import YearlyFinanceChart from "./YearlyFinanceChart";
 
 const FarmFinance = () => {
+  const today = new Date().toISOString().split("T")[0];
   // State for form data
   const [financeData, setFinanceData] = useState({
     income_type: "",
@@ -12,18 +13,18 @@ const FarmFinance = () => {
     amount: "",
     date: "",
   });
-// New state to toggle table visibility
-const [showTable, setShowTable] = useState(false);
-const toggleTable = () => {
-  setShowTable((prevState) => !prevState);
-};
-const [showTable2, setShowTable2] = useState(false);
-const toggleTable2 = () => {
-  setShowTable2((prevState) => !prevState);
-};
+  // New state to toggle table visibility
+  const [showTable, setShowTable] = useState(false);
+  const toggleTable = () => {
+    setShowTable((prevState) => !prevState);
+  };
+  const [showTable2, setShowTable2] = useState(false);
+  const toggleTable2 = () => {
+    setShowTable2((prevState) => !prevState);
+  };
 
   // State for filters
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() +1); // Current month
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
 
   const [enhancedSummary, setEnhancedSummary] = useState({
@@ -86,7 +87,7 @@ const toggleTable2 = () => {
       const monthResponse = await fetch(
         `http://127.0.0.1:8000/api/enhancedfinance-summary/?month=${selectedMonth}`
       );
-      
+
       // Fetch yearly summary
       const yearResponse = await fetch(
         `http://127.0.0.1:8000/api/enhancedfinance-summary/?year=${selectedYear}`
@@ -156,6 +157,7 @@ const toggleTable2 = () => {
 
   // Handle expense submission
   const handleExpenseSubmit = async (e) => {
+
     e.preventDefault();
     const today = new Date().toISOString().split("T")[0];
     if (financeData.date > today) {
@@ -191,12 +193,10 @@ const toggleTable2 = () => {
     <div id="farmFinance" className="farm-finance-container">
       <div className="finance-form">
         {/* <h2>Farm Finance</h2> */}
-        
-
 
         {/* Income Form */}
         <form onSubmit={handleIncomeSubmit}>
-        <h3>Income Details</h3>
+          <h3>Income Details</h3>
           <label className="label">
             Income Type:
             <select
@@ -236,6 +236,7 @@ const toggleTable2 = () => {
               name="date"
               value={financeData.date}
               onChange={handleChange}
+              max={today} // This line restricts the selection to today or earlier
               required
             />
           </label>
@@ -243,12 +244,11 @@ const toggleTable2 = () => {
           <button type="submit" className="submit-button">
             Save Income
           </button>
-
         </form>
 
         {/* Expense Form */}
         <form onSubmit={handleExpenseSubmit}>
-        <h3>Expense Details</h3>
+          <h3>Expense Details</h3>
           <label className="label">
             Expense Type:
             <select
@@ -290,6 +290,7 @@ const toggleTable2 = () => {
               name="date"
               value={financeData.date}
               onChange={handleChange}
+              max={today} // This line restricts the selection to today or earlier
               required
             />
           </label>
@@ -297,154 +298,195 @@ const toggleTable2 = () => {
           <button type="submit" className="submit-button">
             Save Expense
           </button>
-
         </form>
       </div>
 
       {/* Finance Summary */}
       <div className="finance-summary">
         <h2>Finance Summary</h2>
-        
+
         {/* Monthly Summary */}
         <div className="summary-section">
-          <h3>Monthly Summary - {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</h3>
+          <h3>
+            Monthly Summary -{" "}
+            {months.find((m) => m.value === selectedMonth)?.label}{" "}
+            {selectedYear}
+          </h3>
           <select
-              className="input-field"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            >
-              {months.map((month) => (
-                <option key={month.value} value={month.value}>
-                  {month.label}
-                </option>
-              ))}
-            </select>
-            <MonthlyFinanceChart enhancedSummary={enhancedSummary} />
-            <br />
-                <br />
-              {/* Toggle button for table display */}
+            className="input-field"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          >
+            {months.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.label}
+              </option>
+            ))}
+          </select>
+          <MonthlyFinanceChart enhancedSummary={enhancedSummary} />
+          <br />
+          <br />
+          {/* Toggle button for table display */}
           <button onClick={toggleTable} className="submit-button">
             {showTable ? "Hide Summary Table" : "Show Summary Table"}
           </button>
-                
-          {showTable&& (<table className="summary-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Total</th>
-                <th>Percentage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {enhancedSummary.income_breakdown?.map((income, index) => (
-                <tr key={`income-${index}`}>
-                  <td>{index === 0 ? "Income" : ""}</td>
-                  <td>{income.income_type}</td>
-                  <td>{income.total}</td>
-                  <td>{((income.total / enhancedSummary.total_income) * 100).toFixed(2)}%</td>
-                </tr>
-              ))}
-              <tr>
-                <td colSpan="2"><strong>Total Income</strong></td>
-                <td colSpan="2">{enhancedSummary.total_income}</td>
-              </tr>
 
-              {enhancedSummary.expense_breakdown?.map((expense, index) => (
-                <tr key={`expense-${index}`}>
-                  <td>{index === 0 ? "Expenses" : ""}</td>
-                  <td>{expense.expense_type}</td>
-                  <td>{expense.total}</td>
-                  <td>{((expense.total / enhancedSummary.total_expenses) * 100).toFixed(2)}%</td>
+          {showTable && (
+            <table className="summary-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Total</th>
+                  <th>Percentage</th>
                 </tr>
-              ))}
-              <tr>
-                <td colSpan="2"><strong>Total Expenses</strong></td>
-                <td colSpan="2">{enhancedSummary.total_expenses}</td>
-              </tr>
+              </thead>
+              <tbody>
+                {enhancedSummary.income_breakdown?.map((income, index) => (
+                  <tr key={`income-${index}`}>
+                    <td>{index === 0 ? "Income" : ""}</td>
+                    <td>{income.income_type}</td>
+                    <td>{income.total}</td>
+                    <td>
+                      {(
+                        (income.total / enhancedSummary.total_income) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan="2">
+                    <strong>Total Income</strong>
+                  </td>
+                  <td colSpan="2">{enhancedSummary.total_income}</td>
+                </tr>
 
-              <tr>
-                <td colSpan="2"><strong>Net Profit/Loss</strong></td>
-                <td colSpan="2">{enhancedSummary.net_profit_loss}</td>
-              </tr>
-            </tbody>
-          </table>)}
+                {enhancedSummary.expense_breakdown?.map((expense, index) => (
+                  <tr key={`expense-${index}`}>
+                    <td>{index === 0 ? "Expenses" : ""}</td>
+                    <td>{expense.expense_type}</td>
+                    <td>{expense.total}</td>
+                    <td>
+                      {(
+                        (expense.total / enhancedSummary.total_expenses) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan="2">
+                    <strong>Total Expenses</strong>
+                  </td>
+                  <td colSpan="2">{enhancedSummary.total_expenses}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan="2">
+                    <strong>Net Profit/Loss</strong>
+                  </td>
+                  <td colSpan="2">{enhancedSummary.net_profit_loss}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
         </div>
-                <br />
-                <div className="line"></div>
-                <div className="line"></div>
-                
+        <br />
+        <div className="line"></div>
+        <div className="line"></div>
+
         {/* Yearly Summary */}
-       
-            <br />
-                <br />
-              {/* Toggle button for table display */}
-         
-          <h3>Yearly Summary - {selectedYear}</h3>
-          <select
-              className="input-field"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-            <YearlyFinanceChart yearSummary={yearSummary} />
-            <br />
-            <br />
-            <button onClick={toggleTable2} className="submit-button">
-            {showTable2 ? "Hide Summary Table" : "Show Summary Table"}
-            
-          </button>
-          <br />
-        {showTable2 &&(<div className="summary-section">
-        
-          <table className="summary-table">
-            <thead>
-              <tr  className="table-secondary">
-                <th >Category</th>
-                <th>Type</th>
-                <th>Total</th>
-                <th>Percentage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {yearSummary.income_breakdown?.map((income, index) => (
-                <tr key={`yearly-income-${index}`}>
-                  <td>{index === 0 ? "Income" : ""}</td>
-                  <td>{income.income_type}</td>
-                  <td>{income.total}</td>
-                  <td>{((income.total / yearSummary.total_income) * 100).toFixed(2)}%</td>
-                </tr>
-              ))}
-              <tr>
-                <td colSpan="2"><strong>Total Income</strong></td>
-                <td colSpan="2">{yearSummary.total_income}</td>
-              </tr>
 
-              {yearSummary.expense_breakdown?.map((expense, index) => (
-                <tr key={`yearly-expense-${index}`}>
-                  <td>{index === 0 ? "Expenses" : ""}</td>
-                  <td>{expense.expense_type}</td>
-                  <td>{expense.total}</td>
-                  <td>{((expense.total / yearSummary.total_expenses) * 100).toFixed(2)}%</td>
-                </tr>
-              ))}
-              <tr>
-                <td colSpan="2"><strong>Total Expenses</strong></td>
-                <td colSpan="2">{yearSummary.total_expenses}</td>
-              </tr>
+        <br />
+        <br />
+        {/* Toggle button for table display */}
 
-              <tr>
-                <td colSpan="2"><strong>Net Profit/Loss</strong></td>
-                <td colSpan="2">{yearSummary.net_profit_loss}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>)}
+        <h3>Yearly Summary - {selectedYear}</h3>
+        <select
+          className="input-field"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
+        >
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+        <YearlyFinanceChart yearSummary={yearSummary} />
+        <br />
+        <br />
+        <button onClick={toggleTable2} className="submit-button">
+          {showTable2 ? "Hide Summary Table" : "Show Summary Table"}
+        </button>
+        <br />
+        {showTable2 && (
+          <div className="summary-section">
+            <table className="summary-table">
+              <thead>
+                <tr className="table-secondary">
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Total</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yearSummary.income_breakdown?.map((income, index) => (
+                  <tr key={`yearly-income-${index}`}>
+                    <td>{index === 0 ? "Income" : ""}</td>
+                    <td>{income.income_type}</td>
+                    <td>{income.total}</td>
+                    <td>
+                      {(
+                        (income.total / yearSummary.total_income) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan="2">
+                    <strong>Total Income</strong>
+                  </td>
+                  <td colSpan="2">{yearSummary.total_income}</td>
+                </tr>
+
+                {yearSummary.expense_breakdown?.map((expense, index) => (
+                  <tr key={`yearly-expense-${index}`}>
+                    <td>{index === 0 ? "Expenses" : ""}</td>
+                    <td>{expense.expense_type}</td>
+                    <td>{expense.total}</td>
+                    <td>
+                      {(
+                        (expense.total / yearSummary.total_expenses) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan="2">
+                    <strong>Total Expenses</strong>
+                  </td>
+                  <td colSpan="2">{yearSummary.total_expenses}</td>
+                </tr>
+
+                <tr>
+                  <td colSpan="2">
+                    <strong>Net Profit/Loss</strong>
+                  </td>
+                  <td colSpan="2">{yearSummary.net_profit_loss}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

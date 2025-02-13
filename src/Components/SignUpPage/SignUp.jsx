@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignUp.css";
+// import {useAuth} from './Components/auth/AuthContext';
 import user_icon from "../../assets/user_icon.svg";
 import mail_icon from "../../assets/mail_icon.svg";
 import lock_icon from "../../assets/password-svgrepo-com.svg";
@@ -8,9 +9,11 @@ import call_icon from "../../assets/call_icon.svg";
 import location_icon from "../../assets/location_icon.svg";
 import user_role from "../../assets/user-role.svg";
 import mainlog from "../../assets/mainlogo.png";
+import { useAuth } from "../auth/AuthContext.jsx";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -22,7 +25,6 @@ const SignUp = () => {
     address: "",
   });
   const [error, setError] = useState("");
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -31,6 +33,9 @@ const SignUp = () => {
   const handleSubmit = async () => {
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     const phoneNumberRegex=/^\d{10}$/;
+    const emailRegex=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    ;
+
 
 
     if (!isLogin && !formData.username) {
@@ -41,7 +46,7 @@ const SignUp = () => {
     if (!formData.email) {
       setError("Email is required");
       return;
-    } else if (!/^[a-zA-Z0-9._%+-]*(manager|admin|vet)[a-zA-Z0-9._%+-]*@gmail\.com$/.test(formData.email)) {
+    } else if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address (must contain 'manager', 'admin', or 'vet')");
       return;
     }
@@ -102,6 +107,14 @@ const SignUp = () => {
         data = await response.json();
 
         if (!response.ok) {
+          if (data.username) {
+            setError(data.username[0]); // "A user with that username already exists."
+            return;
+          }
+          if (data.email) {
+            setError(data.email[0]); // "user with this email already exists."
+            return;
+          }
           setError(data.error || "Registration failed");
           return;
         }
@@ -120,29 +133,48 @@ const SignUp = () => {
           }),
         });
 
-        data = await response.json();
+        
 
         if (!response.ok) {
           setError(data.error || "Invalid email or password");
           return;
         }
+        data = await response.json();
+        const userRole=data.roles;
+        // let role;
+        // if (formData.email.includes("manager")) {
+        //   role = "manager";
+        // } else if (formData.email.includes("admin")) {
+        //   role = "admin";
+        // } else {
+        //   role = "vet";
+        // }
 
-        alert("Login successful!");
+        // Set authentication state
+        login(userRole);
+         // Navigate based on role
+      switch(userRole) {
+        case 'manager':
+          navigate('/dashboard-manager');
+          break;
+        case 'admin':
+          navigate('/dashboard-admin');
+          break;
+        case 'veterinarian':
+        case 'vet':
+          navigate('/dashboard-vet');
+          break;
+        default:
+          setError('Invalid role assigned');
+          return;
       }
 
-      // Handle navigation based on email
-      if (formData.email.includes("manager")) {
-        navigate("/dashboard-manager");
-      } else if (formData.email.includes("admin")) {
-        navigate("/dashboard-admin");
-      } else {
-        navigate("/dashboard-vet");
-      }
-
-    } catch (err) {
-      setError(err.message || "An error occurred");
+      // alert(data.message || "Login successful!");
     }
-  };
+  } catch (err) {
+    setError(err.message || "An error occurred");
+  }
+};
 
   return (
     <div className="bodysigupcontainer">
@@ -193,7 +225,7 @@ const SignUp = () => {
               >
                 <option value="" disabled>Select Role</option>
                 <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
+                {/* <option value="admin">Admin</option> */}
                 <option value="veterinarian">Veterinarian</option>
               </select>
             </div>
